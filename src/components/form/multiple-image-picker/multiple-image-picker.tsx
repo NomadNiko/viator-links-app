@@ -19,6 +19,7 @@ import IconButton from "@mui/material/IconButton";
 import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
 import ImageListItem from "@mui/material/ImageListItem";
 import ImageList from "@mui/material/ImageList";
+import Image from "next/image";
 
 type MultipleImagePickerProps = {
   error?: string;
@@ -63,7 +64,14 @@ const StyledOverlay = styled("div")(() => {
     "&:hover": {
       opacity: 1,
     },
+    zIndex: 1,
   };
+});
+
+const StyledImageWrapper = styled("div")({
+  position: "relative",
+  width: "100%",
+  height: "100%",
 });
 
 function MultipleImagePicker(props: MultipleImagePickerProps) {
@@ -143,7 +151,19 @@ function MultipleImagePicker(props: MultipleImagePickerProps) {
                     />
                   </IconButton>
                 </StyledOverlay>
-                <img src={item.path} loading="lazy" />
+                <StyledImageWrapper>
+                  <Image
+                    src={item.path}
+                    alt={
+                      t("common:formInputs.multipleImageInput.imageAlt") ||
+                      "Uploaded image"
+                    }
+                    fill
+                    style={{ objectFit: "cover" }}
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    priority
+                  />
+                </StyledImageWrapper>
               </ImageListItem>
             ))}
           </ImageList>
