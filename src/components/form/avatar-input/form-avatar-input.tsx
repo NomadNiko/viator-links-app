@@ -80,34 +80,47 @@ function AvatarInput(props: AvatarInputProps) {
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const fetchFileUpload = useFileUploadService();
+
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
+      if (isLoading) return; // Prevent multiple uploads while loading
+
       setIsLoading(true);
-      const { status, data } = await fetchFileUpload(acceptedFiles[0]);
-      if (status === HTTP_CODES_ENUM.CREATED) {
-        onChange(data.file);
+      try {
+        const { status, data } = await fetchFileUpload(acceptedFiles[0]);
+        if (status === HTTP_CODES_ENUM.CREATED) {
+          onChange(data.file);
+        }
+      } catch (error) {
+        console.error("File upload failed:", error);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     },
-    [fetchFileUpload, onChange]
+    [fetchFileUpload, onChange, isLoading]
   );
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      "image/jpeg": [],
-      "image/png": [],
+      "image/*": [], // Accept all image types
     },
     maxFiles: 1,
-    maxSize: 1024 * 1024 * 2, // 2MB
     disabled: isLoading || props.disabled,
+    // Remove maxSize constraint
   });
 
-  const removeAvatarHandle = (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
-    event.stopPropagation();
-    onChange(null);
-  };
+  const removeAvatarHandle = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      event.stopPropagation();
+      onChange(null);
+    },
+    [onChange]
+  );
+
+  const handleButtonClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+  }, []);
 
   return (
     <AvatarInputContainer {...getRootProps()}>
@@ -154,8 +167,7 @@ function AvatarInput(props: AvatarInputProps) {
       ) : (
         <StyledAvatar src={props.value?.path} />
       )}
-
-      <Box sx={{ mt: 2 }}>
+      <Box sx={{ mt: 2 }} onClick={handleButtonClick}>
         <Button
           variant="contained"
           component="label"
@@ -168,13 +180,11 @@ function AvatarInput(props: AvatarInputProps) {
           <input {...getInputProps()} />
         </Button>
       </Box>
-
       <Box sx={{ mt: 1 }}>
         <Typography>
           {t("common:formInputs.avatarInput.dragAndDrop")}
         </Typography>
       </Box>
-
       {props.error && (
         <Box sx={{ mt: 1 }}>
           <Typography sx={{ color: "red" }}>{props.error}</Typography>
