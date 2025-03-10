@@ -29,7 +29,6 @@ export const useGetUsersQuery = ({
   sort?: UserSortType | undefined;
 } = {}) => {
   const fetch = useGetUsersService();
-
   const query = useInfiniteQuery({
     queryKey: usersQueryKeys.list().sub.by({ sort, filter }).key,
     initialPageParam: 1,
@@ -45,7 +44,6 @@ export const useGetUsersQuery = ({
           signal,
         }
       );
-
       if (status === HTTP_CODES_ENUM.OK) {
         return {
           data: data.data,
@@ -56,8 +54,8 @@ export const useGetUsersQuery = ({
     getNextPageParam: (lastPage) => {
       return lastPage?.nextPage;
     },
-    gcTime: 0,
+    // Remove gcTime: 0 which was forcing refetches
+    staleTime: 30000, // 30 seconds
   });
-
   return query;
 };
