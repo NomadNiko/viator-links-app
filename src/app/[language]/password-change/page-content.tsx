@@ -4,7 +4,7 @@ import withPageRequiredGuest from "@/services/auth/with-page-required-guest";
 import { useForm, FormProvider, useFormState } from "react-hook-form";
 import { useAuthResetPasswordService } from "@/services/api/services/auth";
 import { Container } from "@mantine/core";
-import { Stack, Alert, Title, Text } from "@mantine/core";
+import { Stack, Alert, Title } from "@mantine/core";
 import { FormTextInput } from "@/components/mantine/form/TextInput";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";

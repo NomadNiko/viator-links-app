@@ -7,7 +7,6 @@ import {
   forwardRef,
   ComponentPropsWithRef,
   MouseEvent,
-  ElementType,
   ReactNode,
 } from "react";
 import Link from "@/components/link";
