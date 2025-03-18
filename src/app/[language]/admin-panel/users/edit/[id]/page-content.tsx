@@ -1,6 +1,6 @@
 "use client";
 import { useForm, FormProvider, useFormState } from "react-hook-form";
-import { Container } from "@/components/mantine/layout/Container";
+import { Container } from "@mantine/core";
 import { Stack, Box } from "@mantine/core";
 import { Typography } from "@/components/mantine/core/Typography";
 import { FormTextInput } from "@/components/mantine/form/TextInput";

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getServerTranslation } from "@/services/i18n";
-import { Container } from "@/components/mantine/layout/Container";
+import { Container } from "@mantine/core";
 import { Typography } from "@/components/mantine/core/Typography";
 import { Text, Anchor } from "@mantine/core";
 import { COMPANY_EMAIL } from "@/config/constants";

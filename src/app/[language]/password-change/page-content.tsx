@@ -3,7 +3,7 @@ import { Button } from "@/components/mantine/core/Button";
 import withPageRequiredGuest from "@/services/auth/with-page-required-guest";
 import { useForm, FormProvider, useFormState } from "react-hook-form";
 import { useAuthResetPasswordService } from "@/services/api/services/auth";
-import { Container } from "@/components/mantine/layout/Container";
+import { Container } from "@mantine/core";
 import { Stack, Alert } from "@mantine/core";
 import { Typography } from "@/components/mantine/core/Typography";
 import { FormTextInput } from "@/components/mantine/form/TextInput";

@@ -8,7 +8,7 @@ import {
 } from "@/services/api/services/auth";
 import useAuthActions from "@/services/auth/use-auth-actions";
 import useAuthTokens from "@/services/auth/use-auth-tokens";
-import { Container } from "@/components/mantine/layout/Container";
+import { Container } from "@mantine/core";
 import { Stack, Box, Divider } from "@mantine/core";
 import { Typography } from "@/components/mantine/core/Typography";
 import { FormTextInput } from "@/components/mantine/form/TextInput";

@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { Loader, Center } from "@mantine/core";
 import { useAuthConfirmEmailService } from "@/services/api/services/auth";
 import { useRouter } from "next/navigation";
-import { Container } from "@/components/mantine/layout/Container";
+import { Container } from "@mantine/core";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { useTranslation } from "@/services/i18n/client";
 import { useSnackbar } from "@/components/mantine/feedback/notification-service";

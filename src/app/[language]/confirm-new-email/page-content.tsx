@@ -6,7 +6,7 @@ import {
   useAuthGetMeService,
 } from "@/services/api/services/auth";
 import { useRouter } from "next/navigation";
-import { Container } from "@/components/mantine/layout/Container";
+import { Container } from "@mantine/core";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { useTranslation } from "@/services/i18n/client";
 import useAuthActions from "@/services/auth/use-auth-actions";

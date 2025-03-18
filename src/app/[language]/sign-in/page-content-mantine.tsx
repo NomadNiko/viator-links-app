@@ -13,7 +13,7 @@ import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { IS_SIGN_UP_ENABLED } from "@/services/auth/config";
 import { FormTextInput } from "@/components/mantine/form/TextInput";
 import { Button } from "@/components/mantine/core/Button";
-import { Container } from "@/components/mantine/layout/Container";
+import { Container } from "@mantine/core";
 import { Box, Divider, Stack, Text } from "@mantine/core";
 
 type SignInFormData = {

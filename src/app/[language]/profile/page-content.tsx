@@ -1,7 +1,7 @@
 "use client";
 import useAuth from "@/services/auth/use-auth";
 import withPageRequiredAuth from "@/services/auth/with-page-required-auth";
-import { Container } from "@/components/mantine/layout/Container";
+import { Container } from "@mantine/core";
 import { Group, Stack, Box } from "@mantine/core";
 import { Typography } from "@/components/mantine/core/Typography";
 import { Avatar } from "@/components/mantine/data/Avatar";

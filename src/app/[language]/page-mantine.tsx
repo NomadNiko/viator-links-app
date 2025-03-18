@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslation } from "@/services/i18n/client";
-import { Container } from "@/components/mantine/layout/Container";
+import { Container } from "@mantine/core";
 import { Typography } from "@/components/mantine/core/Typography";
 import { Anchor, Flex, Box, Stack } from "@mantine/core";
 import { Trans } from "react-i18next/TransWithoutContext";

@@ -2,7 +2,7 @@
 import { RoleEnum } from "@/services/api/types/role";
 import withPageRequiredAuth from "@/services/auth/with-page-required-auth";
 import { useTranslation } from "@/services/i18n/client";
-import { Container } from "@/components/mantine/layout/Container";
+import { Container } from "@mantine/core";
 import { Grid, Group } from "@mantine/core";
 import { Typography } from "@/components/mantine/core/Typography";
 import { useCallback, useMemo, useState } from "react";
