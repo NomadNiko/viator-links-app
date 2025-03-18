@@ -3,10 +3,10 @@ import { useEffect } from "react";
 import { Loader, Center } from "@mantine/core";
 import { useAuthConfirmEmailService } from "@/services/api/services/auth";
 import { useRouter } from "next/navigation";
-import { useSnackbar } from "@/hooks/use-snackbar";
 import { Container } from "@/components/mantine/layout/Container";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { useTranslation } from "@/services/i18n/client";
+import { useSnackbar } from "@/components/mantine/feedback/notification-service";
 
 export default function ConfirmEmail() {
   const { enqueueSnackbar } = useSnackbar();

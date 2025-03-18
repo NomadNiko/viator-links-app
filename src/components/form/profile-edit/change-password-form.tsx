@@ -4,10 +4,11 @@ import { Container, Stack, Title, Box } from "@mantine/core";
 import { FormTextInput } from "@/components/mantine/form/TextInput";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useSnackbar } from "@/hooks/use-snackbar";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { useTranslation } from "@/services/i18n/client";
 import { FormActions } from "./form-actions";
+import { useSnackbar } from "@/components/mantine/feedback/notification-service";
+
 export type EditProfileChangePasswordFormData = {
   oldPassword: string;
   password: string;

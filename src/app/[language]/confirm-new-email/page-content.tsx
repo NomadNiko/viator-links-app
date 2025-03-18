@@ -6,12 +6,12 @@ import {
   useAuthGetMeService,
 } from "@/services/api/services/auth";
 import { useRouter } from "next/navigation";
-import { useSnackbar } from "@/hooks/use-snackbar";
 import { Container } from "@/components/mantine/layout/Container";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { useTranslation } from "@/services/i18n/client";
 import useAuthActions from "@/services/auth/use-auth-actions";
 import useAuth from "@/services/auth/use-auth";
+import { useSnackbar } from "@/components/mantine/feedback/notification-service";
 
 export default function ConfirmNewEmail() {
   const { enqueueSnackbar } = useSnackbar();

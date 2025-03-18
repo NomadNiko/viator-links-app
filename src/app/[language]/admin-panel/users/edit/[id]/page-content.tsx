@@ -8,7 +8,6 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import withPageRequiredAuth from "@/services/auth/with-page-required-auth";
 import { useEffect } from "react";
-import { useSnackbar } from "@/hooks/use-snackbar";
 import Link from "@/components/link";
 import FormAvatarInput from "@/components/form/avatar-input/form-avatar-input";
 import { FileEntity } from "@/services/api/types/file-entity";
@@ -23,6 +22,7 @@ import { useParams } from "next/navigation";
 import { Role, RoleEnum } from "@/services/api/types/role";
 import { FormSelect } from "@/components/mantine/form/Select";
 import { Button } from "@/components/mantine/core/Button";
+import { useSnackbar } from "@/components/mantine/feedback/notification-service";
 
 type EditUserFormData = {
   email: string;

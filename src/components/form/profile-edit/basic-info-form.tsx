@@ -7,12 +7,12 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect } from "react";
 import useAuth from "@/services/auth/use-auth";
-import { useSnackbar } from "@/hooks/use-snackbar";
 import FormAvatarInput from "@/components/form/avatar-input/form-avatar-input";
 import { FileEntity } from "@/services/api/types/file-entity";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { useTranslation } from "@/services/i18n/client";
 import { FormActions } from "./form-actions";
+import { useSnackbar } from "@/components/mantine/feedback/notification-service";
 
 export type EditProfileBasicInfoFormData = {
   firstName: string;

@@ -9,12 +9,12 @@ import { Typography } from "@/components/mantine/core/Typography";
 import { FormTextInput } from "@/components/mantine/form/TextInput";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useSnackbar } from "@/hooks/use-snackbar";
 import { useRouter } from "next/navigation";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { useTranslation } from "@/services/i18n/client";
 import { useEffect, useMemo, useState } from "react";
 import { IconAlertCircle } from "@tabler/icons-react";
+import { useSnackbar } from "@/components/mantine/feedback/notification-service";
 
 type PasswordChangeFormData = {
   password: string;
