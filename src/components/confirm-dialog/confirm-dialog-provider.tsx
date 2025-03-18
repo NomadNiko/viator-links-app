@@ -1,22 +1,16 @@
 "use client";
-
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
+import { Button } from "@/components/mantine/core/Button";
+import { Modal } from "@/components/mantine/feedback/Modal";
+import { Text } from "@mantine/core";
 import {
   ConfirmDialogActionsContext,
   ConfirmDialogOptions,
 } from "./confirm-dialog-context";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "@/services/i18n/client";
-
 function ConfirmDialogProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation("confirm-dialog");
-
   const defaultConfirmDialogInfo = useMemo<ConfirmDialogOptions>(
     () => ({
       title: t("title"),
@@ -26,25 +20,20 @@ function ConfirmDialogProvider({ children }: { children: React.ReactNode }) {
     }),
     [t]
   );
-
   const [confirmDialogInfo, setConfirmDialogInfo] =
     useState<ConfirmDialogOptions>(defaultConfirmDialogInfo);
   const resolveRef = useRef<(value: boolean) => void>(undefined);
-
   const handleClose = () => {
     setIsOpen(false);
   };
-
   const onCancel = () => {
     setIsOpen(false);
     resolveRef.current?.(false);
   };
-
   const onSuccess = () => {
     setIsOpen(false);
     resolveRef.current?.(true);
   };
-
   const confirmDialog = useCallback(
     (options: Partial<ConfirmDialogOptions> = {}) => {
       return new Promise<boolean>((resolve) => {
@@ -58,44 +47,35 @@ function ConfirmDialogProvider({ children }: { children: React.ReactNode }) {
     },
     [defaultConfirmDialogInfo]
   );
-
   const contextActions = useMemo(
     () => ({
       confirmDialog,
     }),
     [confirmDialog]
   );
-
   return (
     <>
       <ConfirmDialogActionsContext.Provider value={contextActions}>
         {children}
       </ConfirmDialogActionsContext.Provider>
-      <Dialog
-        open={isOpen}
+      <Modal
+        opened={isOpen}
         onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">
-          {confirmDialogInfo.title}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            {confirmDialogInfo.message}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={onCancel}>
+        title={confirmDialogInfo.title}
+        maxWidth="sm"
+        centered
+        actions={[
+          <Button key="cancel" onClick={onCancel}>
             {confirmDialogInfo.cancelButtonText}
-          </Button>
-          <Button onClick={onSuccess} autoFocus>
+          </Button>,
+          <Button key="confirm" onClick={onSuccess} autoFocus>
             {confirmDialogInfo.successButtonText}
-          </Button>
-        </DialogActions>
-      </Dialog>
+          </Button>,
+        ]}
+      >
+        <Text>{confirmDialogInfo.message}</Text>
+      </Modal>
     </>
   );
 }
-
 export default ConfirmDialogProvider;

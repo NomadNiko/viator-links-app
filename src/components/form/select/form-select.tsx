@@ -1,5 +1,4 @@
 "use client";
-
 import { ForwardedRef, forwardRef } from "react";
 import {
   Controller,
@@ -7,12 +6,7 @@ import {
   FieldPath,
   FieldValues,
 } from "react-hook-form";
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
-import FormHelperText from "@mui/material/FormHelperText";
-
+import { Select, Text, Box } from "@mantine/core";
 type SelectInputProps<T extends object> = {
   label: string;
   type?: string;
@@ -23,10 +17,9 @@ type SelectInputProps<T extends object> = {
   testId?: string;
   keyValue: keyof T;
   options: T[];
-  size?: "small" | "medium";
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
   renderOption: (option: T) => React.ReactNode;
 };
-
 function SelectInputRaw<T extends object>(
   props: SelectInputProps<T> & {
     name: string;
@@ -34,63 +27,53 @@ function SelectInputRaw<T extends object>(
     onChange: (value: T) => void;
     onBlur: () => void;
   },
-  ref?: ForwardedRef<HTMLDivElement | null>
+  ref?: ForwardedRef<HTMLInputElement>
 ) {
+  const data = props.options.map((option) => ({
+    value: String(option[props.keyValue]),
+    label: props.renderOption(option) as string,
+  }));
+  const handleChange = (value: string | null) => {
+    if (value) {
+      const selectedOption = props.options.find(
+        (option) => String(option[props.keyValue]) === value
+      );
+      if (selectedOption) {
+        props.onChange(selectedOption);
+      }
+    }
+  };
   return (
-    <FormControl fullWidth error={!!props.error} disabled={props.disabled}>
-      <InputLabel id={`select-label-${props.name}`}>{props.label}</InputLabel>
+    <Box>
       <Select
         ref={ref}
-        labelId={`select-label-${props.name}`}
-        id={`select-${props.name}`}
-        size={props.size}
-        value={props.value?.[props.keyValue]?.toString() ?? ""}
-        label={props.label}
-        inputProps={{
-          readOnly: props.readOnly,
-        }}
-        onChange={(event) => {
-          const newValue = props.options.find(
-            (option) =>
-              option[props.keyValue]?.toString() === event.target.value
-          );
-          if (!newValue) return;
-
-          props.onChange(newValue);
-        }}
+        data={data}
+        value={props.value ? String(props.value[props.keyValue]) : null}
+        onChange={handleChange}
         onBlur={props.onBlur}
+        label={props.label}
+        disabled={props.disabled}
+        readOnly={props.readOnly}
+        error={props.error}
+        size={props.size}
         data-testid={props.testId}
-        renderValue={() => {
-          return props.value ? props.renderOption(props.value) : undefined;
-        }}
-      >
-        {props.options.map((option) => (
-          <MenuItem
-            key={option[props.keyValue]?.toString()}
-            value={option[props.keyValue]?.toString()}
-          >
-            {props.renderOption(option)}
-          </MenuItem>
-        ))}
-      </Select>
+      />
       {!!props.error && (
-        <FormHelperText data-testid={`${props.testId}-error`}>
+        <Text color="red" size="sm" data-testid={`${props.testId}-error`}>
           {props.error}
-        </FormHelperText>
+        </Text>
       )}
-    </FormControl>
+    </Box>
   );
 }
-
 const SelectInput = forwardRef(SelectInputRaw) as never as <T extends object>(
   props: SelectInputProps<T> & {
     name: string;
     value: T | undefined | null;
     onChange: (value: T) => void;
     onBlur: () => void;
-  } & { ref?: ForwardedRef<HTMLDivElement | null> }
+  } & { ref?: ForwardedRef<HTMLInputElement> }
 ) => ReturnType<typeof SelectInputRaw>;
-
 function FormSelectInput<
   TFieldValues extends FieldValues = FieldValues,
   T extends object = object,
@@ -122,5 +105,4 @@ function FormSelectInput<
     />
   );
 }
-
 export default FormSelectInput;

@@ -1,10 +1,8 @@
 import { useForm, FormProvider } from "react-hook-form";
 import { useAuthPatchMeService } from "@/services/api/services/auth";
 import useAuthActions from "@/services/auth/use-auth-actions";
-import Container from "@mui/material/Container";
-import Grid from "@mui/material/Grid2";
-import Typography from "@mui/material/Typography";
-import FormTextInput from "@/components/form/text-input/form-text-input";
+import { Container, Stack, Title, Box } from "@mantine/core";
+import { FormTextInput } from "@/components/mantine/form/TextInput";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect } from "react";
@@ -24,7 +22,6 @@ export type EditProfileBasicInfoFormData = {
 
 const useValidationBasicInfoSchema = () => {
   const { t } = useTranslation("profile");
-
   return yup.object().shape({
     firstName: yup
       .string()
@@ -42,7 +39,6 @@ export function BasicInfoForm() {
   const { t } = useTranslation("profile");
   const validationSchema = useValidationBasicInfoSchema();
   const { enqueueSnackbar } = useSnackbar();
-
   const methods = useForm<EditProfileBasicInfoFormData>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -51,12 +47,9 @@ export function BasicInfoForm() {
       photo: undefined,
     },
   });
-
   const { handleSubmit, setError, reset } = methods;
-
   const onSubmit = handleSubmit(async (formData) => {
     const { data, status } = await fetchAuthPatchMe(formData);
-
     if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
       (
         Object.keys(data.errors) as Array<keyof EditProfileBasicInfoFormData>
@@ -68,13 +61,10 @@ export function BasicInfoForm() {
           ),
         });
       });
-
       return;
     }
-
     if (status === HTTP_CODES_ENUM.OK) {
       setUser(data);
-
       enqueueSnackbar(t("profile:alerts.profile.success"), {
         variant: "success",
       });
@@ -91,36 +81,27 @@ export function BasicInfoForm() {
 
   return (
     <FormProvider {...methods}>
-      <Container maxWidth="xs">
+      <Container size="xs">
         <form onSubmit={onSubmit}>
-          <Grid container spacing={2} mb={3} mt={3}>
-            <Grid size={{ xs: 12 }}>
-              <Typography variant="h6">{t("profile:title1")}</Typography>
-            </Grid>
-            <Grid size={{ xs: 12 }}>
+          <Stack gap="md" py="md">
+            <Title order={5}>{t("profile:title1")}</Title>
+            <Box>
               <FormAvatarInput<EditProfileBasicInfoFormData>
                 name="photo"
                 testId="photo"
               />
-            </Grid>
-
-            <Grid size={{ xs: 12 }}>
-              <FormTextInput<EditProfileBasicInfoFormData>
-                name="firstName"
-                label={t("profile:inputs.firstName.label")}
-                testId="first-name"
-              />
-            </Grid>
-
-            <Grid size={{ xs: 12 }}>
-              <FormTextInput<EditProfileBasicInfoFormData>
-                name="lastName"
-                label={t("profile:inputs.lastName.label")}
-                testId="last-name"
-              />
-            </Grid>
-
-            <Grid size={{ xs: 12 }}>
+            </Box>
+            <FormTextInput<EditProfileBasicInfoFormData>
+              name="firstName"
+              label={t("profile:inputs.firstName.label")}
+              testId="first-name"
+            />
+            <FormTextInput<EditProfileBasicInfoFormData>
+              name="lastName"
+              label={t("profile:inputs.lastName.label")}
+              testId="last-name"
+            />
+            <Box>
               <FormActions
                 submitLabel={t("profile:actions.submit")}
                 cancelLabel={t("profile:actions.cancel")}
@@ -128,8 +109,8 @@ export function BasicInfoForm() {
                 cancelTestId="cancel-edit-profile"
                 cancelHref="/profile"
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Stack>
         </form>
       </Container>
     </FormProvider>

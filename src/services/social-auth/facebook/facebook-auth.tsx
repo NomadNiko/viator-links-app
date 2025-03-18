@@ -6,7 +6,7 @@ import useAuthActions from "@/services/auth/use-auth-actions";
 import useAuthTokens from "@/services/auth/use-auth-tokens";
 import { useState } from "react";
 import { FullPageLoader } from "@/components/full-page-loader";
-import Button from "@mui/material/Button";
+import { Button } from "@/components/mantine/core/Button";
 import useFacebookAuth from "./use-facebook-auth";
 import { useTranslation } from "@/services/i18n/client";
 
@@ -44,7 +44,7 @@ export default function FacebookAuth() {
 
   return (
     <>
-      <Button variant="contained" color="primary" onClick={onLogin}>
+      <Button color="blue" onClick={onLogin}>
         {t("common:auth.facebook.action")}
       </Button>
       <FullPageLoader isLoading={isLoading} />

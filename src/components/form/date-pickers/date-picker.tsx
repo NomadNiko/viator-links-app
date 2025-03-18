@@ -1,9 +1,4 @@
-import * as React from "react";
-import {
-  DatePicker,
-  DateView,
-  LocalizationProvider,
-} from "@mui/x-date-pickers";
+import { DatePickerInput } from "@mantine/dates";
 import {
   Controller,
   ControllerProps,
@@ -11,76 +6,47 @@ import {
   FieldValues,
 } from "react-hook-form";
 import { ForwardedRef, forwardRef } from "react";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
-import useLanguage from "@/services/i18n/use-language";
-import { getValueByKey } from "@/components/form/date-pickers/helper";
-
 type ValueDateType = Date | null | undefined;
 type DatePickerFieldProps = {
   disabled?: boolean;
-  className?: string;
-  views?: readonly DateView[] | undefined;
   minDate?: Date;
   maxDate?: Date;
   autoFocus?: boolean;
-  readOnly?: boolean;
   label: string;
   testId?: string;
   error?: string;
   defaultValue?: ValueDateType;
+  placeholder?: string;
+  clearable?: boolean;
 };
-const DatePickerInput = forwardRef(DatePickerInputRaw) as never as (
-  props: DatePickerFieldProps & {
-    name: string;
-    value: ValueDateType;
-    onChange: (value: ValueDateType) => void;
-    onBlur: () => void;
-  } & { ref?: ForwardedRef<HTMLDivElement | null> }
-) => ReturnType<typeof DatePickerInputRaw>;
-
-function DatePickerInputRaw(
-  props: DatePickerFieldProps & {
-    name: string;
-    value: ValueDateType;
-    onChange: (value: ValueDateType) => void;
-    onBlur: () => void;
-  },
-  ref?: ForwardedRef<HTMLDivElement | null>
-) {
-  const language = useLanguage();
-
-  return (
-    <LocalizationProvider
-      dateAdapter={AdapterDateFns}
-      adapterLocale={getValueByKey(language)}
-    >
-      <DatePicker
+const CustomDatePickerInput = forwardRef(
+  (
+    props: DatePickerFieldProps & {
+      value: ValueDateType;
+      onChange: (value: ValueDateType) => void;
+      onBlur: () => void;
+    },
+    ref: ForwardedRef<HTMLButtonElement>
+  ) => {
+    return (
+      <DatePickerInput
         ref={ref}
-        name={props.name}
-        label={props.label}
         value={props.value}
-        onClose={props.onBlur}
+        onChange={props.onChange}
+        onBlur={props.onBlur}
         disabled={props.disabled}
-        autoFocus={props.autoFocus}
-        defaultValue={props.defaultValue}
-        slotProps={{
-          textField: {
-            helperText: props.error,
-            error: !!props.error,
-            InputProps: {
-              readOnly: props.readOnly,
-            },
-          },
-        }}
-        onAccept={props.onChange}
+        placeholder={props.placeholder}
+        clearable={props.clearable}
         minDate={props.minDate}
         maxDate={props.maxDate}
-        views={props.views}
+        error={props.error}
+        label={props.label}
         data-testid={props.testId}
       />
-    </LocalizationProvider>
-  );
-}
+    );
+  }
+);
+CustomDatePickerInput.displayName = "CustomDatePickerInput";
 function FormDatePickerInput<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
@@ -92,25 +58,20 @@ function FormDatePickerInput<
     <Controller
       name={props.name}
       defaultValue={props.defaultValue}
-      render={({ field, fieldState }) => {
-        return (
-          <DatePickerInput
-            {...field}
-            defaultValue={props.defaultValue}
-            autoFocus={props.autoFocus}
-            label={props.label}
-            disabled={props.disabled}
-            readOnly={props.readOnly}
-            views={props.views}
-            testId={props.testId}
-            minDate={props.minDate}
-            maxDate={props.maxDate}
-            error={fieldState.error?.message}
-          />
-        );
-      }}
+      render={({ field, fieldState }) => (
+        <CustomDatePickerInput
+          {...field}
+          label={props.label}
+          disabled={props.disabled}
+          testId={props.testId}
+          minDate={props.minDate}
+          maxDate={props.maxDate}
+          placeholder={props.placeholder}
+          clearable={props.clearable}
+          error={fieldState.error?.message}
+        />
+      )}
     />
   );
 }
-
 export default FormDatePickerInput;

@@ -1,18 +1,12 @@
 "use client";
-
-import { ChangeEvent, ForwardedRef, forwardRef } from "react";
+import { ForwardedRef, forwardRef } from "react";
 import {
   Controller,
   ControllerProps,
   FieldPath,
   FieldValues,
 } from "react-hook-form";
-import FormControl from "@mui/material/FormControl";
-import FormHelperText from "@mui/material/FormHelperText";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import FormGroup from "@mui/material/FormGroup";
-
+import { Box, Checkbox, Text } from "@mantine/core";
 export type CheckboxBooleanInputProps = {
   label: string;
   type?: string;
@@ -22,7 +16,6 @@ export type CheckboxBooleanInputProps = {
   error?: string;
   testId?: string;
 };
-
 function CheckboxBooleanInputRaw(
   props: CheckboxBooleanInputProps & {
     name: string;
@@ -33,41 +26,30 @@ function CheckboxBooleanInputRaw(
   ref?: ForwardedRef<HTMLDivElement | null>
 ) {
   const value = props.value ?? false;
-  const onChange = (
-    event: ChangeEvent<HTMLInputElement>,
-    checkboxValue: boolean
-  ) => {
-    props.onChange(checkboxValue);
-  };
   return (
-    <FormControl
-      data-testid={props.testId}
-      component="fieldset"
-      variant="standard"
-      error={!!props.error}
-    >
-      <FormGroup ref={ref}>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={value}
-              onChange={onChange}
-              name={props.name}
-              data-testid={`${props.testId}-checkbox`}
-            />
-          }
-          label={props.label}
-        />
-      </FormGroup>
+    <Box ref={ref} data-testid={props.testId}>
+      <Checkbox
+        checked={value}
+        onChange={(event) => props.onChange(event.currentTarget.checked)}
+        onBlur={props.onBlur}
+        name={props.name}
+        label={props.label}
+        disabled={props.disabled || props.readOnly}
+        data-testid={`${props.testId}-checkbox`}
+      />
       {!!props.error && (
-        <FormHelperText data-testid={`${props.testId}-error`}>
+        <Text
+          color="red"
+          size="sm"
+          mt="xs"
+          data-testid={`${props.testId}-error`}
+        >
           {props.error}
-        </FormHelperText>
+        </Text>
       )}
-    </FormControl>
+    </Box>
   );
 }
-
 const CheckboxBooleanInput = forwardRef(CheckboxBooleanInputRaw) as never as (
   props: CheckboxBooleanInputProps & {
     name: string;
@@ -76,7 +58,6 @@ const CheckboxBooleanInput = forwardRef(CheckboxBooleanInputRaw) as never as (
     onBlur: () => void;
   } & { ref?: ForwardedRef<HTMLDivElement | null> }
 ) => ReturnType<typeof CheckboxBooleanInputRaw>;
-
 function FormCheckboxBooleanInput<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
@@ -103,5 +84,4 @@ function FormCheckboxBooleanInput<
     />
   );
 }
-
 export default FormCheckboxBooleanInput;

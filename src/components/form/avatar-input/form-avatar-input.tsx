@@ -1,11 +1,10 @@
+"use client";
 import { useFileUploadService } from "@/services/api/services/files";
 import { FileEntity } from "@/services/api/types/file-entity";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
-import Avatar from "@mui/material/Avatar";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import { styled } from "@mui/material/styles";
+import { Avatar } from "@/components/mantine/data/Avatar";
+import { Box, Text, Paper, ActionIcon, useMantineTheme } from "@mantine/core";
+import { Button } from "@/components/mantine/core/Button";
 import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import {
@@ -15,8 +14,7 @@ import {
   FieldValues,
 } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import IconButton from "@mui/material/IconButton";
-import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
+import { IconX } from "@tabler/icons-react";
 
 type AvatarInputProps = {
   error?: string;
@@ -27,64 +25,16 @@ type AvatarInputProps = {
   testId?: string;
 };
 
-const AvatarInputContainer = styled("div")(({ theme }) => ({
-  display: "flex",
-  position: "relative",
-  flexDirection: "column",
-  alignItems: "center",
-  padding: theme.spacing(2),
-  marginTop: theme.spacing(2),
-  border: "1px dashed",
-  borderColor: theme.palette.divider,
-  borderRadius: theme.shape.borderRadius,
-  cursor: "pointer",
-
-  "&:hover": {
-    borderColor: theme.palette.text.primary,
-  },
-}));
-
-const StyledWrapperAvatar = styled("div")(() => ({
-  position: "relative",
-  width: 100,
-  height: 100,
-}));
-
-const StyledOverlay = styled("div")(() => {
-  return {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: "50%",
-    position: "absolute",
-    top: 0,
-    right: 0,
-    left: 0,
-    bottom: 0,
-    background: "rgba(0, 0, 0, 0.7)",
-    transition: ".5s ease",
-    opacity: 0,
-    "&:hover": {
-      opacity: 1,
-    },
-  };
-});
-
-const StyledAvatar = styled(Avatar)(({}) => ({
-  width: 100,
-  height: 100,
-}));
-
 function AvatarInput(props: AvatarInputProps) {
   const { onChange } = props;
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const fetchFileUpload = useFileUploadService();
+  const theme = useMantineTheme();
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       if (isLoading) return; // Prevent multiple uploads while loading
-
       setIsLoading(true);
       try {
         const { status, data } = await fetchFileUpload(acceptedFiles[0]);
@@ -107,7 +57,6 @@ function AvatarInput(props: AvatarInputProps) {
     },
     maxFiles: 1,
     disabled: isLoading || props.disabled,
-    // Remove maxSize constraint
   });
 
   const removeAvatarHandle = useCallback(
@@ -123,10 +72,24 @@ function AvatarInput(props: AvatarInputProps) {
   }, []);
 
   return (
-    <AvatarInputContainer {...getRootProps()}>
+    <Paper
+      {...getRootProps()}
+      p={theme.spacing.md}
+      mt={theme.spacing.md}
+      withBorder
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        padding: theme.spacing.md,
+        border: "1px dashed #ddd",
+        borderRadius: "8px",
+        cursor: "pointer",
+      }}
+    >
       {isDragActive && (
         <Box
-          sx={{
+          style={{
             position: "absolute",
             top: 0,
             left: 0,
@@ -136,42 +99,50 @@ function AvatarInput(props: AvatarInputProps) {
             zIndex: 1,
           }}
         >
-          <Typography
-            sx={{
-              color: "white",
-              fontWeight: "bold",
-              textAlign: "center",
-              mt: 10,
-            }}
-            variant="h5"
-          >
+          <Text size="xl" fw="bold" color="white" ta="center" mt="xl">
             {t("common:formInputs.avatarInput.dropzoneText")}
-          </Typography>
+          </Text>
         </Box>
       )}
       {props?.value ? (
-        <StyledWrapperAvatar>
-          <StyledAvatar src={props.value?.path} />
-          <StyledOverlay>
-            <IconButton
-              disableRipple
+        <Box style={{ position: "relative", width: 100, height: 100 }}>
+          <Avatar src={props.value?.path} size={100} radius="xl" />
+          <Box
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              borderRadius: "50%",
+              position: "absolute",
+              top: 0,
+              right: 0,
+              left: 0,
+              bottom: 0,
+              background: "rgba(0, 0, 0, 0.7)",
+              transition: ".5s ease",
+              opacity: 0,
+              "&:hover": {
+                opacity: 1,
+              },
+            }}
+          >
+            <ActionIcon
+              variant="transparent"
               onClick={removeAvatarHandle}
-              color="inherit"
+              color="white"
+              size="xl"
             >
-              <ClearOutlinedIcon
-                sx={{ width: 50, height: 50, color: "white" }}
-              />
-            </IconButton>
-          </StyledOverlay>
-        </StyledWrapperAvatar>
+              <IconX size={50} color="white" />
+            </ActionIcon>
+          </Box>
+        </Box>
       ) : (
-        <StyledAvatar src={props.value?.path} />
+        <Avatar src={props.value?.path} size={100} radius="xl" />
       )}
-      <Box sx={{ mt: 2 }} onClick={handleButtonClick}>
+      <Box mt={theme.spacing.md} onClick={handleButtonClick}>
         <Button
-          variant="contained"
           component="label"
-          disabled={isLoading}
+          loading={isLoading}
           data-testid={props.testId}
         >
           {isLoading
@@ -180,17 +151,15 @@ function AvatarInput(props: AvatarInputProps) {
           <input {...getInputProps()} />
         </Button>
       </Box>
-      <Box sx={{ mt: 1 }}>
-        <Typography>
-          {t("common:formInputs.avatarInput.dragAndDrop")}
-        </Typography>
+      <Box mt="xs">
+        <Text size="sm">{t("common:formInputs.avatarInput.dragAndDrop")}</Text>
       </Box>
       {props.error && (
-        <Box sx={{ mt: 1 }}>
-          <Typography sx={{ color: "red" }}>{props.error}</Typography>
-        </Box>
+        <Text color="red" size="sm" mt="xs">
+          {props.error}
+        </Text>
       )}
-    </AvatarInputContainer>
+    </Paper>
   );
 }
 

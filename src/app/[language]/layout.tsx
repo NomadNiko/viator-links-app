@@ -1,19 +1,9 @@
-import ResponsiveAppBar from "@/components/app-bar";
-import AuthProvider from "@/services/auth/auth-provider";
-import "../globals.css";
-import "@fontsource/roboto/300.css";
-import "@fontsource/roboto/400.css";
-import "@fontsource/roboto/500.css";
-import "@fontsource/roboto/700.css";
-import CssBaseline from "@mui/material/CssBaseline";
+// app/[language]/layout.tsx
 import { dir } from "i18next";
-import "@/services/i18n/config";
 import { languages } from "@/services/i18n/config";
 import type { Metadata } from "next";
-import ToastContainer from "@/components/snackbar-provider";
 import { getServerTranslation } from "@/services/i18n";
 import StoreLanguageProvider from "@/services/i18n/store-language-provider";
-import ThemeProvider from "@/components/theme/theme-provider";
 import LeavePageProvider from "@/services/leave-page/leave-page-provider";
 import QueryClientProvider from "@/services/react-query/query-client-provider";
 import queryClient from "@/services/react-query/query-client";
@@ -21,7 +11,14 @@ import ReactQueryDevtools from "@/services/react-query/react-query-devtools";
 import GoogleAuthProvider from "@/services/social-auth/google/google-auth-provider";
 import FacebookAuthProvider from "@/services/social-auth/facebook/facebook-auth-provider";
 import ConfirmDialogProvider from "@/components/confirm-dialog/confirm-dialog-provider";
-import InitColorSchemeScript from "@/components/theme/init-color-scheme-script";
+import AuthProvider from "@/services/auth/auth-provider";
+import ResponsiveAppBar from "@/components/app-bar";
+import { MantineProviders } from "@/components/theme/mantine-provider";
+import { NotificationsProvider } from "@/components/mantine/feedback/notification-provider";
+import "@mantine/core/styles.css";
+import "@mantine/notifications/styles.css";
+import "../globals.css";
+import "@/services/i18n/config";
 
 type Props = {
   params: Promise<{ language: string }>;
@@ -30,7 +27,6 @@ type Props = {
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params;
   const { t } = await getServerTranslation(params.language, "common");
-
   return {
     title: t("title"),
   };
@@ -45,39 +41,32 @@ export default async function RootLayout(props: {
   params: Promise<{ language: string }>;
 }) {
   const params = await props.params;
-
   const { language } = params;
-
   const { children } = props;
 
   return (
     <html lang={language} dir={dir(language)} suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <InitColorSchemeScript />
         <QueryClientProvider client={queryClient}>
           <ReactQueryDevtools initialIsOpen={false} />
-          <ThemeProvider>
-            <CssBaseline />
-
+          <MantineProviders>
             <StoreLanguageProvider>
               <ConfirmDialogProvider>
                 <AuthProvider>
                   <GoogleAuthProvider>
                     <FacebookAuthProvider>
                       <LeavePageProvider>
-                        <ResponsiveAppBar />
-                        {children}
-                        <ToastContainer
-                          position="bottom-left"
-                          hideProgressBar
-                        />
+                        <NotificationsProvider>
+                          <ResponsiveAppBar />
+                          {children}
+                        </NotificationsProvider>
                       </LeavePageProvider>
                     </FacebookAuthProvider>
                   </GoogleAuthProvider>
                 </AuthProvider>
               </ConfirmDialogProvider>
             </StoreLanguageProvider>
-          </ThemeProvider>
+          </MantineProviders>
         </QueryClientProvider>
       </body>
     </html>

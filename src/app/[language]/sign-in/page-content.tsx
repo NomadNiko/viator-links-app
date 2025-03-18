@@ -1,37 +1,36 @@
 "use client";
-import Button from "@mui/material/Button";
-import LinkItem from "@mui/material/Link";
-import withPageRequiredGuest from "@/services/auth/with-page-required-guest";
-import { useForm, FormProvider, useFormState } from "react-hook-form";
+import { useState } from "react";
+import { useForm, FormProvider } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { useTranslation } from "@/services/i18n/client";
 import { useAuthLoginService } from "@/services/api/services/auth";
 import useAuthActions from "@/services/auth/use-auth-actions";
 import useAuthTokens from "@/services/auth/use-auth-tokens";
-import Container from "@mui/material/Container";
-import Grid from "@mui/material/Grid2";
-import Typography from "@mui/material/Typography";
-import FormTextInput from "@/components/form/text-input/form-text-input";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
-import Link from "@/components/link";
-import Box from "@mui/material/Box";
+import withPageRequiredGuest from "@/services/auth/with-page-required-guest";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
-import { useTranslation } from "@/services/i18n/client";
-import SocialAuth from "@/services/social-auth/social-auth";
-import Divider from "@mui/material/Divider";
-import Chip from "@mui/material/Chip";
+import { IS_SIGN_UP_ENABLED } from "@/services/auth/config";
+import { FormTextInput } from "@/components/mantine/form/TextInput";
+import { Button } from "@/components/mantine/core/Button";
+import { Container } from "@/components/mantine/layout/Container";
+import { Box, Divider, Stack, Text, Anchor } from "@mantine/core";
+import Link from "@/components/link";
 import { isGoogleAuthEnabled } from "@/services/social-auth/google/google-config";
 import { isFacebookAuthEnabled } from "@/services/social-auth/facebook/facebook-config";
-import { IS_SIGN_UP_ENABLED } from "@/services/auth/config";
+import SocialAuth from "@/services/social-auth/social-auth";
 
 type SignInFormData = {
   email: string;
   password: string;
 };
 
-const useValidationSchema = () => {
+function SignIn() {
   const { t } = useTranslation("sign-in");
+  const { setUser } = useAuthActions();
+  const { setTokensInfo } = useAuthTokens();
+  const fetchAuthLogin = useAuthLoginService();
 
-  return yup.object().shape({
+  const validationSchema = yup.object().shape({
     email: yup
       .string()
       .email(t("sign-in:inputs.email.validation.invalid"))
@@ -41,31 +40,6 @@ const useValidationSchema = () => {
       .min(6, t("sign-in:inputs.password.validation.min"))
       .required(t("sign-in:inputs.password.validation.required")),
   });
-};
-
-function FormActions() {
-  const { t } = useTranslation("sign-in");
-  const { isSubmitting } = useFormState();
-
-  return (
-    <Button
-      variant="contained"
-      color="primary"
-      type="submit"
-      disabled={isSubmitting}
-      data-testid="sign-in-submit"
-    >
-      {t("sign-in:actions.submit")}
-    </Button>
-  );
-}
-
-function Form() {
-  const { setUser } = useAuthActions();
-  const { setTokensInfo } = useAuthTokens();
-  const fetchAuthLogin = useAuthLoginService();
-  const { t } = useTranslation("sign-in");
-  const validationSchema = useValidationSchema();
 
   const methods = useForm<SignInFormData>({
     resolver: yupResolver(validationSchema),
@@ -76,107 +50,94 @@ function Form() {
   });
 
   const { handleSubmit, setError } = methods;
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const onSubmit = handleSubmit(async (formData) => {
-    const { data, status } = await fetchAuthLogin(formData);
-
-    if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
-      (Object.keys(data.errors) as Array<keyof SignInFormData>).forEach(
-        (key) => {
-          setError(key, {
-            type: "manual",
-            message: t(
-              `sign-in:inputs.${key}.validation.server.${data.errors[key]}`
-            ),
-          });
-        }
-      );
-
-      return;
-    }
-
-    if (status === HTTP_CODES_ENUM.OK) {
-      setTokensInfo({
-        token: data.token,
-        refreshToken: data.refreshToken,
-        tokenExpires: data.tokenExpires,
-      });
-      setUser(data.user);
+    setIsSubmitting(true);
+    try {
+      const { data, status } = await fetchAuthLogin(formData);
+      if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
+        (Object.keys(data.errors) as Array<keyof SignInFormData>).forEach(
+          (key) => {
+            setError(key, {
+              type: "manual",
+              message: t(
+                `sign-in:inputs.${key}.validation.server.${data.errors[key]}`
+              ),
+            });
+          }
+        );
+        return;
+      }
+      if (status === HTTP_CODES_ENUM.OK) {
+        setTokensInfo({
+          token: data.token,
+          refreshToken: data.refreshToken,
+          tokenExpires: data.tokenExpires,
+        });
+        setUser(data.user);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   });
 
   return (
     <FormProvider {...methods}>
-      <Container maxWidth="xs">
+      <Container size="xs">
         <form onSubmit={onSubmit}>
-          <Grid container spacing={2} mb={2}>
-            <Grid size={{ xs: 12 }} mt={3}>
-              <Typography variant="h6">{t("sign-in:title")}</Typography>
-            </Grid>
-            <Grid size={{ xs: 12 }}>
-              <FormTextInput<SignInFormData>
-                name="email"
-                label={t("sign-in:inputs.email.label")}
-                type="email"
-                testId="email"
-                autoFocus
-              />
-            </Grid>
-
-            <Grid size={{ xs: 12 }}>
-              <FormTextInput<SignInFormData>
-                name="password"
-                label={t("sign-in:inputs.password.label")}
-                type="password"
-                testId="password"
-              />
-            </Grid>
-            <Grid size={{ xs: 12 }}>
-              <LinkItem
-                component={Link}
-                href="/forgot-password"
-                data-testid="forgot-password"
+          <Stack gap="md" mt="lg">
+            <Text size="xl" fw={600}>
+              {t("sign-in:title")}
+            </Text>
+            <FormTextInput<SignInFormData>
+              name="email"
+              label={t("sign-in:inputs.email.label")}
+              type="email"
+              testId="email"
+              autoFocus
+            />
+            <FormTextInput<SignInFormData>
+              name="password"
+              label={t("sign-in:inputs.password.label")}
+              type="password"
+              testId="password"
+            />
+            <Anchor href="/forgot-password" data-testid="forgot-password">
+              {t("sign-in:actions.forgotPassword")}
+            </Anchor>
+            <Box>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                data-testid="sign-in-submit"
+                mr="xs"
               >
-                {t("sign-in:actions.forgotPassword")}
-              </LinkItem>
-            </Grid>
-
-            <Grid size={{ xs: 12 }}>
-              <FormActions />
-
+                {t("sign-in:actions.submit")}
+              </Button>
               {IS_SIGN_UP_ENABLED && (
-                <Box ml={1} component="span">
-                  <Button
-                    variant="contained"
-                    color="inherit"
-                    LinkComponent={Link}
-                    href="/sign-up"
-                    data-testid="create-account"
-                  >
-                    {t("sign-in:actions.createAccount")}
-                  </Button>
-                </Box>
+                <Button
+                  variant="outlined"
+                  color="gray"
+                  component={Link}
+                  href="/sign-up"
+                  data-testid="create-account"
+                >
+                  {t("sign-in:actions.createAccount")}
+                </Button>
               )}
-            </Grid>
-
+            </Box>
             {[isGoogleAuthEnabled, isFacebookAuthEnabled].some(Boolean) && (
-              <Grid size={{ xs: 12 }}>
-                <Divider sx={{ mb: 2 }}>
-                  <Chip label={t("sign-in:or")} />
-                </Divider>
-
+              <>
+                <Divider label={t("sign-in:or")} labelPosition="center" />
                 <SocialAuth />
-              </Grid>
+              </>
             )}
-          </Grid>
+          </Stack>
         </form>
       </Container>
     </FormProvider>
   );
-}
-
-function SignIn() {
-  return <Form />;
 }
 
 export default withPageRequiredGuest(SignIn);

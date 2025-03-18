@@ -2,17 +2,14 @@ import React from "react";
 import { Meta, StoryFn } from "@storybook/react";
 import { useForm, FormProvider } from "react-hook-form";
 import FormCheckboxInput, { CheckboxInputProps } from "./form-checkbox";
-
 interface Option {
   id: number;
   name: string;
 }
-
 export default {
   title: "Components/Form/CheckboxInput",
   component: FormCheckboxInput,
 } as Meta;
-
 const Template: StoryFn<CheckboxInputProps<Option> & { name: string }> = (
   args
 ) => {
@@ -21,7 +18,6 @@ const Template: StoryFn<CheckboxInputProps<Option> & { name: string }> = (
       sampleCheckbox: [],
     },
   });
-
   return (
     <FormProvider {...methods}>
       <form>
@@ -30,7 +26,6 @@ const Template: StoryFn<CheckboxInputProps<Option> & { name: string }> = (
     </FormProvider>
   );
 };
-
 export const Default = Template.bind({});
 Default.args = {
   label: "Sample Form Checkbox",

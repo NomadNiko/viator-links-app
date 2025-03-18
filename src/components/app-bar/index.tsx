@@ -1,52 +1,52 @@
 "use client";
-// import { useTranslation } from "@/services/i18n/client";
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import Container from "@mui/material/Container";
-import Box from "@mui/material/Box";
-
-// Import components
+import { AppShell, Burger, Group, Container, Box } from "@mantine/core";
+import { useState } from "react";
+import { SwitchThemeButton } from "@/components/mantine/theme/SwitchThemeButton";
 import Logo from "./logo";
 import DesktopNavigation from "./desktop-navigation";
 import MobileNavigation from "./mobile-navigation";
 import AuthSection from "./auth-section";
-import ThemeSwitchButton from "@/components/switch-theme-button";
-
 const ResponsiveAppBar = () => {
-  // const { t } = useTranslation("common");
-
+  const [opened, setOpened] = useState(false);
   return (
-    <AppBar position="static">
-      <Container maxWidth="xl">
-        <Toolbar disableGutters>
-          {/* Desktop Logo */}
-          <Logo />
-
-          {/* Mobile Navigation */}
-          <MobileNavigation />
-
-          {/* Mobile Logo */}
-          <Logo isMobile />
-
-          {/* Desktop Navigation */}
-          <DesktopNavigation />
-
-          {/* Theme Switch Button */}
-          <Box
-            sx={{
-              display: "flex",
-              mr: 1,
-            }}
-          >
-            <ThemeSwitchButton />
-          </Box>
-
-          {/* Authentication Section */}
-          <AuthSection />
-        </Toolbar>
-      </Container>
-    </AppBar>
+    <AppShell
+      header={{ height: 60 }}
+      navbar={{
+        width: 300,
+        breakpoint: "sm",
+        collapsed: { desktop: true, mobile: !opened },
+      }}
+    >
+      <AppShell.Header>
+        <Container size="xl" py="md">
+          <Group justify="space-between">
+            {/* Mobile Burger */}
+            <Burger
+              opened={opened}
+              onClick={() => setOpened((o) => !o)}
+              hiddenFrom="md"
+              size="sm"
+            />
+            {/* Desktop Logo */}
+            <Logo />
+            {/* Mobile Logo */}
+            <Logo isMobile />
+            {/* Desktop Navigation */}
+            <DesktopNavigation onCloseMenu={() => setOpened(false)} />
+            {/* Theme Switch Button */}
+            <Box>
+              <SwitchThemeButton />
+            </Box>
+            {/* Authentication Section */}
+            <AuthSection />
+          </Group>
+        </Container>
+      </AppShell.Header>
+      <AppShell.Navbar p="md">
+        <MobileNavigation />
+      </AppShell.Navbar>
+      <AppShell.Main pt={60}></AppShell.Main>
+    </AppShell>
   );
 };
-
 export default ResponsiveAppBar;

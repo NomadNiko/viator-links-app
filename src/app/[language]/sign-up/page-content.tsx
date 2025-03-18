@@ -1,5 +1,5 @@
 "use client";
-import Button from "@mui/material/Button";
+import { Button } from "@/components/mantine/core/Button";
 import withPageRequiredGuest from "@/services/auth/with-page-required-guest";
 import { useForm, FormProvider, useFormState } from "react-hook-form";
 import {
@@ -8,20 +8,16 @@ import {
 } from "@/services/api/services/auth";
 import useAuthActions from "@/services/auth/use-auth-actions";
 import useAuthTokens from "@/services/auth/use-auth-tokens";
-import Container from "@mui/material/Container";
-import Grid from "@mui/material/Grid2";
-import Typography from "@mui/material/Typography";
-import FormTextInput from "@/components/form/text-input/form-text-input";
+import { Container } from "@/components/mantine/layout/Container";
+import { Stack, Box, Divider, Anchor } from "@mantine/core";
+import { Typography } from "@/components/mantine/core/Typography";
+import { FormTextInput } from "@/components/mantine/form/TextInput";
 import FormCheckboxInput from "@/components/form/checkbox/form-checkbox";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Link from "@/components/link";
-import Box from "@mui/material/Box";
-import MuiLink from "@mui/material/Link";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { useTranslation } from "@/services/i18n/client";
-import Divider from "@mui/material/Divider";
-import Chip from "@mui/material/Chip";
 import SocialAuth from "@/services/social-auth/social-auth";
 import { isGoogleAuthEnabled } from "@/services/social-auth/google/google-config";
 import { isFacebookAuthEnabled } from "@/services/social-auth/facebook/facebook-config";
@@ -41,7 +37,6 @@ type SignUpFormData = {
 
 const useValidationSchema = () => {
   const { t } = useTranslation("sign-up");
-
   return yup.object().shape({
     firstName: yup
       .string()
@@ -67,15 +62,8 @@ const useValidationSchema = () => {
 function FormActions() {
   const { t } = useTranslation("sign-up");
   const { isSubmitting } = useFormState();
-
   return (
-    <Button
-      variant="contained"
-      color="primary"
-      type="submit"
-      disabled={isSubmitting}
-      data-testid="sign-up-submit"
-    >
+    <Button type="submit" disabled={isSubmitting} data-testid="sign-up-submit">
       {t("sign-up:actions.submit")}
     </Button>
   );
@@ -91,7 +79,6 @@ function Form() {
   const policyOptions = [
     { id: "policy", name: t("sign-up:inputs.policy.agreement") },
   ];
-
   const methods = useForm<SignUpFormData>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -102,13 +89,10 @@ function Form() {
       policy: [],
     },
   });
-
   const { handleSubmit, setError } = methods;
-
   const onSubmit = handleSubmit(async (formData) => {
     const { data: dataSignUp, status: statusSignUp } =
       await fetchAuthSignUp(formData);
-
     if (statusSignUp === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
       (Object.keys(dataSignUp.errors) as Array<keyof SignUpFormData>).forEach(
         (key) => {
@@ -120,15 +104,12 @@ function Form() {
           });
         }
       );
-
       return;
     }
-
     const { data: dataSignIn, status: statusSignIn } = await fetchAuthLogin({
       email: formData.email,
       password: formData.password,
     });
-
     if (statusSignIn === HTTP_CODES_ENUM.OK) {
       setTokensInfo({
         token: dataSignIn.token,
@@ -141,92 +122,72 @@ function Form() {
 
   return (
     <FormProvider {...methods}>
-      <Container maxWidth="xs">
+      <Container size="xs">
         <form onSubmit={onSubmit}>
-          <Grid container spacing={2} mb={2}>
-            <Grid size={{ xs: 12 }} mt={3}>
-              <Typography variant="h6">{t("sign-up:title")}</Typography>
-            </Grid>
-            <Grid size={{ xs: 12 }}>
-              <FormTextInput<SignUpFormData>
-                name="firstName"
-                label={t("sign-up:inputs.firstName.label")}
-                type="text"
-                autoFocus
-                testId="first-name"
-              />
-            </Grid>
-
-            <Grid size={{ xs: 12 }}>
-              <FormTextInput<SignUpFormData>
-                name="lastName"
-                label={t("sign-up:inputs.lastName.label")}
-                type="text"
-                testId="last-name"
-              />
-            </Grid>
-
-            <Grid size={{ xs: 12 }}>
-              <FormTextInput<SignUpFormData>
-                name="email"
-                label={t("sign-up:inputs.email.label")}
-                type="email"
-                testId="email"
-              />
-            </Grid>
-
-            <Grid size={{ xs: 12 }}>
-              <FormTextInput<SignUpFormData>
-                name="password"
-                label={t("sign-up:inputs.password.label")}
-                type="password"
-                testId="password"
-              />
-            </Grid>
-            <Grid size={{ xs: 12 }}>
-              <FormCheckboxInput
-                name="policy"
-                label=""
-                testId="privacy"
-                options={policyOptions}
-                keyValue="id"
-                keyExtractor={(option) => option.id.toString()}
-                renderOption={(option) => (
-                  <span>
-                    {option.name}
-                    <MuiLink href="/privacy-policy" target="_blank">
-                      {t("sign-up:inputs.policy.label")}
-                    </MuiLink>
-                  </span>
-                )}
-              />
-            </Grid>
-
-            <Grid size={{ xs: 12 }}>
+          <Stack gap="md" mb="md" mt="md">
+            <Typography variant="h6">{t("sign-up:title")}</Typography>
+            <FormTextInput<SignUpFormData>
+              name="firstName"
+              label={t("sign-up:inputs.firstName.label")}
+              type="text"
+              autoFocus
+              testId="first-name"
+            />
+            <FormTextInput<SignUpFormData>
+              name="lastName"
+              label={t("sign-up:inputs.lastName.label")}
+              type="text"
+              testId="last-name"
+            />
+            <FormTextInput<SignUpFormData>
+              name="email"
+              label={t("sign-up:inputs.email.label")}
+              type="email"
+              testId="email"
+            />
+            <FormTextInput<SignUpFormData>
+              name="password"
+              label={t("sign-up:inputs.password.label")}
+              type="password"
+              testId="password"
+            />
+            <FormCheckboxInput
+              name="policy"
+              label=""
+              testId="privacy"
+              options={policyOptions}
+              keyValue="id"
+              keyExtractor={(option) => option.id.toString()}
+              renderOption={(option) => (
+                <span>
+                  {option.name}
+                  <Anchor href="/privacy-policy" target="_blank">
+                    {t("sign-up:inputs.policy.label")}
+                  </Anchor>
+                </span>
+              )}
+            />
+            <Box>
               <FormActions />
-              <Box ml={1} component="span">
+              <Box ml="xs" style={{ display: "inline-block" }}>
                 <Button
-                  variant="contained"
-                  color="inherit"
-                  LinkComponent={Link}
+                  variant="outlined"
+                  color="gray"
+                  component={Link}
                   data-testid="login"
                   href="/sign-in"
                 >
                   {t("sign-up:actions.accountAlreadyExists")}
                 </Button>
               </Box>
-            </Grid>
-
+            </Box>
             {[isGoogleAuthEnabled, isFacebookAuthEnabled].some(Boolean) && (
-              <Grid size={{ xs: 12 }}>
-                <Divider sx={{ mb: 2 }}>
-                  <Chip label={t("sign-up:or")} />
-                </Divider>
-
+              <>
+                <Divider label={t("sign-up:or")} labelPosition="center" />
                 <SocialAuth />
-              </Grid>
+              </>
             )}
-          </Grid>
+          </Stack>
         </form>
       </Container>
     </FormProvider>

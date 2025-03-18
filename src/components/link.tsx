@@ -7,14 +7,12 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import NextLink, { LinkProps } from "next/link";
 import { forwardRef, useContext } from "react";
-
 const Link = forwardRef<HTMLAnchorElement, LinkProps>(
   function Link(props, ref) {
     const language = useLanguage();
     const { isLeavePage } = useContext(LeavePageContext);
     const { setLeavePage, openModal } = useContext(LeavePageActionsContext);
     let href = props.href;
-
     if (typeof href === "string" && href.startsWith("/")) {
       href = `/${language}${href}`;
     } else if (typeof href === "object" && href !== null) {
@@ -26,7 +24,6 @@ const Link = forwardRef<HTMLAnchorElement, LinkProps>(
         pathname,
       };
     }
-
     return (
       <NextLink
         ref={ref}
@@ -47,5 +44,4 @@ const Link = forwardRef<HTMLAnchorElement, LinkProps>(
     );
   }
 );
-
 export default Link;

@@ -1,5 +1,4 @@
 "use client";
-
 import { ForwardedRef, forwardRef } from "react";
 import {
   Controller,
@@ -7,13 +6,7 @@ import {
   FieldPath,
   FieldValues,
 } from "react-hook-form";
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
-import FormHelperText from "@mui/material/FormHelperText";
-import OutlinedInput from "@mui/material/OutlinedInput";
-
+import { MultiSelect, Text, Box } from "@mantine/core";
 type MultipleSelectInputProps<T extends object> = {
   label: string;
   type?: string;
@@ -27,7 +20,6 @@ type MultipleSelectInputProps<T extends object> = {
   renderValue: (option: T[]) => React.ReactNode;
   renderOption: (option: T) => React.ReactNode;
 };
-
 function MultipleSelectInputRaw<T extends object>(
   props: MultipleSelectInputProps<T> & {
     name: string;
@@ -35,78 +27,53 @@ function MultipleSelectInputRaw<T extends object>(
     onChange: (value: T[]) => void;
     onBlur: () => void;
   },
-  ref?: ForwardedRef<HTMLDivElement | null>
+  ref?: ForwardedRef<HTMLInputElement>
 ) {
+  const data = props.options.map((option) => ({
+    value: String(option[props.keyValue]),
+    label: props.renderOption(option) as string,
+  }));
+  const value = props.value?.map((item) => String(item[props.keyValue])) || [];
+  const handleChange = (selectedValues: string[]) => {
+    const newValue = selectedValues
+      .map((val) =>
+        props.options.find((opt) => String(opt[props.keyValue]) === val)
+      )
+      .filter((opt): opt is T => opt !== undefined);
+    props.onChange(newValue);
+  };
   return (
-    <FormControl fullWidth error={!!props.error} disabled={props.disabled}>
-      <InputLabel id={`select-label-${props.name}`}>{props.label}</InputLabel>
-      <Select
+    <Box>
+      <MultiSelect
         ref={ref}
-        labelId={`select-label-${props.name}`}
-        id={`select-${props.name}`}
-        value={props.value?.map(
-          (value) => value?.[props.keyValue]?.toString() ?? ""
-        )}
-        input={<OutlinedInput label={props.label} />}
-        multiple
-        inputProps={{
-          readOnly: props.readOnly,
-        }}
-        onChange={(event) => {
-          const value = event.target.value;
-          const selectedStrings =
-            typeof value === "string" ? value.split(",") : value;
-
-          const newValue = selectedStrings
-            .map((selectedString) => {
-              const option = props.options.find(
-                (option) =>
-                  option[props.keyValue]?.toString() === selectedString
-              );
-
-              if (!option) return undefined;
-
-              return option;
-            })
-            .filter((option) => option !== undefined) as T[];
-
-          props.onChange(newValue);
-        }}
+        data={data}
+        value={value}
+        onChange={handleChange}
         onBlur={props.onBlur}
+        label={props.label}
+        disabled={props.disabled}
+        readOnly={props.readOnly}
+        error={props.error}
         data-testid={props.testId}
-        renderValue={() => {
-          return props.value ? props.renderValue(props.value) : undefined;
-        }}
-      >
-        {props.options.map((option) => (
-          <MenuItem
-            key={option[props.keyValue]?.toString()}
-            value={option[props.keyValue]?.toString()}
-          >
-            {props.renderOption(option)}
-          </MenuItem>
-        ))}
-      </Select>
+      />
       {!!props.error && (
-        <FormHelperText data-testid={`${props.testId}-error`}>
+        <Text color="red" size="sm" data-testid={`${props.testId}-error`}>
           {props.error}
-        </FormHelperText>
+        </Text>
       )}
-    </FormControl>
+    </Box>
   );
 }
-
 const MultipleSelectInput = forwardRef(MultipleSelectInputRaw) as never as <
   T extends object,
 >(
   props: MultipleSelectInputProps<T> & {
     name: string;
-    value: T | undefined | null;
-    onChange: (value: T) => void;
+    value: T[] | undefined | null;
+    onChange: (value: T[]) => void;
     onBlur: () => void;
-  } & { ref?: ForwardedRef<HTMLDivElement | null> }
+  } & { ref?: ForwardedRef<HTMLInputElement> }
 ) => ReturnType<typeof MultipleSelectInputRaw>;
-
 function FormMultipleSelectInput<
   TFieldValues extends FieldValues = FieldValues,
   T extends object = object,
@@ -138,5 +105,4 @@ function FormMultipleSelectInput<
     />
   );
 }
-
 export default FormMultipleSelectInput;

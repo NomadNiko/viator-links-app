@@ -1,36 +1,31 @@
 "use client";
-import Typography from "@mui/material/Typography";
+import { Anchor, Text } from "@mantine/core";
 import { useTranslation } from "@/services/i18n/client";
-
 interface LogoProps {
   isMobile?: boolean;
 }
-
 const Logo = ({ isMobile = false }: LogoProps) => {
   const { t } = useTranslation("common");
-
+  const display = isMobile
+    ? { base: "flex", md: "none" }
+    : { base: "none", md: "flex" };
+  // Use Anchor directly instead of Box with component prop
   return (
-    <Typography
-      variant={isMobile ? "h5" : "h6"}
-      noWrap
-      component="a"
+    <Anchor
       href="/"
-      sx={{
-        mr: 2,
-        display: isMobile
-          ? { xs: "flex", md: "none" }
-          : { xs: "none", md: "flex" },
+      underline="never"
+      display={display}
+      style={{
         flexGrow: isMobile ? 1 : 0,
         fontFamily: "monospace",
-        fontWeight: 700,
         letterSpacing: ".3rem",
-        color: "inherit",
         textDecoration: "none",
       }}
     >
-      {t("common:app-name")}
-    </Typography>
+      <Text size={isMobile ? "xl" : "lg"} fw={700}>
+        {t("common:app-name")}
+      </Text>
+    </Anchor>
   );
 };
-
 export default Logo;

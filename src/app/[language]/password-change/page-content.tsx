@@ -1,12 +1,12 @@
 "use client";
-import Button from "@mui/material/Button";
+import { Button } from "@/components/mantine/core/Button";
 import withPageRequiredGuest from "@/services/auth/with-page-required-guest";
 import { useForm, FormProvider, useFormState } from "react-hook-form";
 import { useAuthResetPasswordService } from "@/services/api/services/auth";
-import Container from "@mui/material/Container";
-import Grid from "@mui/material/Grid2";
-import Typography from "@mui/material/Typography";
-import FormTextInput from "@/components/form/text-input/form-text-input";
+import { Container } from "@/components/mantine/layout/Container";
+import { Stack, Alert } from "@mantine/core";
+import { Typography } from "@/components/mantine/core/Typography";
+import { FormTextInput } from "@/components/mantine/form/TextInput";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useSnackbar } from "@/hooks/use-snackbar";
@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { useTranslation } from "@/services/i18n/client";
 import { useEffect, useMemo, useState } from "react";
-import Alert from "@mui/material/Alert";
+import { IconAlertCircle } from "@tabler/icons-react";
 
 type PasswordChangeFormData = {
   password: string;
@@ -23,7 +23,6 @@ type PasswordChangeFormData = {
 
 const useValidationSchema = () => {
   const { t } = useTranslation("password-change");
-
   return yup.object().shape({
     password: yup
       .string()
@@ -44,15 +43,8 @@ const useValidationSchema = () => {
 function FormActions() {
   const { t } = useTranslation("password-change");
   const { isSubmitting } = useFormState();
-
   return (
-    <Button
-      variant="contained"
-      color="primary"
-      type="submit"
-      disabled={isSubmitting}
-      data-testid="set-password"
-    >
+    <Button type="submit" disabled={isSubmitting} data-testid="set-password">
       {t("password-change:actions.submit")}
     </Button>
   );
@@ -61,10 +53,8 @@ function FormActions() {
 function ExpiresAlert() {
   const { t } = useTranslation("password-change");
   const [currentTime, setCurrentTime] = useState(() => Date.now());
-
   const expires = useMemo(() => {
     const params = new URLSearchParams(window.location.search);
-
     return Number(params.get("expires"));
   }, []);
 
@@ -72,26 +62,25 @@ function ExpiresAlert() {
     const interval = setInterval(() => {
       const now = Date.now();
       setCurrentTime(now);
-
       if (expires < now) {
         clearInterval(interval);
       }
     }, 1000);
-
     return () => clearInterval(interval);
   }, [expires]);
 
   const isExpired = expires < currentTime;
 
-  return (
-    isExpired && (
-      <Grid size={{ xs: 12 }}>
-        <Alert severity="error" data-testid="reset-link-expired-alert">
-          {t("password-change:alerts.expired")}
-        </Alert>
-      </Grid>
-    )
-  );
+  return isExpired ? (
+    <Alert
+      icon={<IconAlertCircle size={16} />}
+      title={t("password-change:alerts.expired")}
+      color="red"
+      data-testid="reset-link-expired-alert"
+    >
+      {t("password-change:alerts.expired")}
+    </Alert>
+  ) : null;
 }
 
 function Form() {
@@ -132,7 +121,6 @@ function Form() {
           });
         }
       );
-
       return;
     }
 
@@ -140,41 +128,31 @@ function Form() {
       enqueueSnackbar(t("password-change:alerts.success"), {
         variant: "success",
       });
-
       router.replace("/sign-in");
     }
   });
 
   return (
     <FormProvider {...methods}>
-      <Container maxWidth="xs">
+      <Container size="xs">
         <form onSubmit={onSubmit}>
-          <Grid container spacing={2} mb={2}>
-            <Grid size={{ xs: 12 }} mt={3}>
-              <Typography variant="h6">{t("password-change:title")}</Typography>
-            </Grid>
+          <Stack gap="md" mb="md" mt="lg">
+            <Typography variant="h6">{t("password-change:title")}</Typography>
             <ExpiresAlert />
-            <Grid size={{ xs: 12 }}>
-              <FormTextInput<PasswordChangeFormData>
-                name="password"
-                label={t("password-change:inputs.password.label")}
-                type="password"
-                testId="password"
-              />
-            </Grid>
-            <Grid size={{ xs: 12 }}>
-              <FormTextInput<PasswordChangeFormData>
-                name="passwordConfirmation"
-                label={t("password-change:inputs.passwordConfirmation.label")}
-                type="password"
-                testId="password-confirmation"
-              />
-            </Grid>
-
-            <Grid size={{ xs: 12 }}>
-              <FormActions />
-            </Grid>
-          </Grid>
+            <FormTextInput<PasswordChangeFormData>
+              name="password"
+              label={t("password-change:inputs.password.label")}
+              type="password"
+              testId="password"
+            />
+            <FormTextInput<PasswordChangeFormData>
+              name="passwordConfirmation"
+              label={t("password-change:inputs.passwordConfirmation.label")}
+              type="password"
+              testId="password-confirmation"
+            />
+            <FormActions />
+          </Stack>
         </form>
       </Container>
     </FormProvider>

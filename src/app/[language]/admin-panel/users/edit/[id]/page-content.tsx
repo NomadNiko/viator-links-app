@@ -1,11 +1,9 @@
 "use client";
-
-import Button from "@mui/material/Button";
 import { useForm, FormProvider, useFormState } from "react-hook-form";
-import Container from "@mui/material/Container";
-import Grid from "@mui/material/Grid2";
-import Typography from "@mui/material/Typography";
-import FormTextInput from "@/components/form/text-input/form-text-input";
+import { Container } from "@/components/mantine/layout/Container";
+import { Stack, Box } from "@mantine/core";
+import { Typography } from "@/components/mantine/core/Typography";
+import { FormTextInput } from "@/components/mantine/form/TextInput";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import withPageRequiredAuth from "@/services/auth/with-page-required-auth";
@@ -15,7 +13,6 @@ import Link from "@/components/link";
 import FormAvatarInput from "@/components/form/avatar-input/form-avatar-input";
 import { FileEntity } from "@/services/api/types/file-entity";
 import useLeavePage from "@/services/leave-page/use-leave-page";
-import Box from "@mui/material/Box";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { useTranslation } from "@/services/i18n/client";
 import {
@@ -24,7 +21,8 @@ import {
 } from "@/services/api/services/users";
 import { useParams } from "next/navigation";
 import { Role, RoleEnum } from "@/services/api/types/role";
-import FormSelectInput from "@/components/form/select/form-select";
+import { FormSelect } from "@/components/mantine/form/Select";
+import { Button } from "@/components/mantine/core/Button";
 
 type EditUserFormData = {
   email: string;
@@ -41,7 +39,6 @@ type ChangeUserPasswordFormData = {
 
 const useValidationEditUserSchema = () => {
   const { t } = useTranslation("admin-panel-users-edit");
-
   return yup.object().shape({
     email: yup
       .string()
@@ -71,7 +68,6 @@ const useValidationEditUserSchema = () => {
 
 const useValidationChangePasswordSchema = () => {
   const { t } = useTranslation("admin-panel-users-edit");
-
   return yup.object().shape({
     password: yup
       .string()
@@ -97,14 +93,8 @@ function EditUserFormActions() {
   const { t } = useTranslation("admin-panel-users-edit");
   const { isSubmitting, isDirty } = useFormState();
   useLeavePage(isDirty);
-
   return (
-    <Button
-      variant="contained"
-      color="primary"
-      type="submit"
-      disabled={isSubmitting}
-    >
+    <Button type="submit" disabled={isSubmitting}>
       {t("admin-panel-users-edit:actions.submit")}
     </Button>
   );
@@ -114,14 +104,8 @@ function ChangePasswordUserFormActions() {
   const { t } = useTranslation("admin-panel-users-edit");
   const { isSubmitting, isDirty } = useFormState();
   useLeavePage(isDirty);
-
   return (
-    <Button
-      variant="contained"
-      color="primary"
-      type="submit"
-      disabled={isSubmitting}
-    >
+    <Button type="submit" disabled={isSubmitting}>
       {t("admin-panel-users-edit:actions.submit")}
     </Button>
   );
@@ -182,7 +166,6 @@ function FormEditUser() {
   useEffect(() => {
     const getInitialDataForEdit = async () => {
       const { status, data: user } = await fetchGetUser({ id: userId });
-
       if (status === HTTP_CODES_ENUM.OK) {
         reset({
           email: user?.email ?? "",
@@ -195,82 +178,64 @@ function FormEditUser() {
         });
       }
     };
-
     getInitialDataForEdit();
   }, [userId, reset, fetchGetUser]);
 
+  const roleOptions = [
+    {
+      value: RoleEnum.ADMIN.toString(),
+      label: t(`admin-panel-users-edit:inputs.role.options.${RoleEnum.ADMIN}`),
+    },
+    {
+      value: RoleEnum.USER.toString(),
+      label: t(`admin-panel-users-edit:inputs.role.options.${RoleEnum.USER}`),
+    },
+  ];
+
   return (
     <FormProvider {...methods}>
-      <Container maxWidth="xs">
+      <Container size="xs">
         <form onSubmit={onSubmit}>
-          <Grid container spacing={2} mb={3} mt={3}>
-            <Grid size={{ xs: 12 }}>
-              <Typography variant="h6">
-                {t("admin-panel-users-edit:title1")}
-              </Typography>
-            </Grid>
-            <Grid size={{ xs: 12 }}>
-              <FormAvatarInput<EditUserFormData> name="photo" testId="photo" />
-            </Grid>
-
-            <Grid size={{ xs: 12 }}>
-              <FormTextInput<EditUserFormData>
-                name="email"
-                testId="email"
-                label={t("admin-panel-users-edit:inputs.email.label")}
-              />
-            </Grid>
-
-            <Grid size={{ xs: 12 }}>
-              <FormTextInput<EditUserFormData>
-                name="firstName"
-                testId="first-name"
-                label={t("admin-panel-users-edit:inputs.firstName.label")}
-              />
-            </Grid>
-
-            <Grid size={{ xs: 12 }}>
-              <FormTextInput<EditUserFormData>
-                name="lastName"
-                testId="last-name"
-                label={t("admin-panel-users-edit:inputs.lastName.label")}
-              />
-            </Grid>
-
-            <Grid size={{ xs: 12 }}>
-              <FormSelectInput<EditUserFormData, Pick<Role, "id">>
-                name="role"
-                testId="role"
-                label={t("admin-panel-users-edit:inputs.role.label")}
-                options={[
-                  {
-                    id: RoleEnum.ADMIN,
-                  },
-                  {
-                    id: RoleEnum.USER,
-                  },
-                ]}
-                keyValue="id"
-                renderOption={(option) =>
-                  t(`admin-panel-users-edit:inputs.role.options.${option.id}`)
-                }
-              />
-            </Grid>
-
-            <Grid size={{ xs: 12 }}>
+          <Stack gap="md" mb="md" mt="md">
+            <Typography variant="h6">
+              {t("admin-panel-users-edit:title1")}
+            </Typography>
+            <FormAvatarInput<EditUserFormData> name="photo" testId="photo" />
+            <FormTextInput<EditUserFormData>
+              name="email"
+              testId="email"
+              label={t("admin-panel-users-edit:inputs.email.label")}
+            />
+            <FormTextInput<EditUserFormData>
+              name="firstName"
+              testId="first-name"
+              label={t("admin-panel-users-edit:inputs.firstName.label")}
+            />
+            <FormTextInput<EditUserFormData>
+              name="lastName"
+              testId="last-name"
+              label={t("admin-panel-users-edit:inputs.lastName.label")}
+            />
+            <FormSelect<EditUserFormData>
+              name="role"
+              testId="role"
+              label={t("admin-panel-users-edit:inputs.role.label")}
+              options={roleOptions}
+            />
+            <Box>
               <EditUserFormActions />
-              <Box ml={1} component="span">
+              <Box ml="xs" style={{ display: "inline-block" }}>
                 <Button
-                  variant="contained"
-                  color="inherit"
-                  LinkComponent={Link}
+                  variant="outlined"
+                  color="gray"
+                  component={Link}
                   href="/admin-panel/users"
                 >
                   {t("admin-panel-users-edit:actions.cancel")}
                 </Button>
               </Box>
-            </Grid>
-          </Grid>
+            </Box>
+          </Stack>
         </form>
       </Container>
     </FormProvider>
@@ -323,47 +288,38 @@ function FormChangePasswordUser() {
 
   return (
     <FormProvider {...methods}>
-      <Container maxWidth="xs">
+      <Container size="xs">
         <form onSubmit={onSubmit}>
-          <Grid container spacing={2} mb={3} mt={3}>
-            <Grid size={{ xs: 12 }}>
-              <Typography variant="h6">
-                {t("admin-panel-users-edit:title2")}
-              </Typography>
-            </Grid>
-
-            <Grid size={{ xs: 12 }}>
-              <FormTextInput<ChangeUserPasswordFormData>
-                name="password"
-                type="password"
-                label={t("admin-panel-users-edit:inputs.password.label")}
-              />
-            </Grid>
-
-            <Grid size={{ xs: 12 }}>
-              <FormTextInput<ChangeUserPasswordFormData>
-                name="passwordConfirmation"
-                label={t(
-                  "admin-panel-users-edit:inputs.passwordConfirmation.label"
-                )}
-                type="password"
-              />
-            </Grid>
-
-            <Grid size={{ xs: 12 }}>
+          <Stack gap="md" mb="md" mt="md">
+            <Typography variant="h6">
+              {t("admin-panel-users-edit:title2")}
+            </Typography>
+            <FormTextInput<ChangeUserPasswordFormData>
+              name="password"
+              type="password"
+              label={t("admin-panel-users-edit:inputs.password.label")}
+            />
+            <FormTextInput<ChangeUserPasswordFormData>
+              name="passwordConfirmation"
+              label={t(
+                "admin-panel-users-edit:inputs.passwordConfirmation.label"
+              )}
+              type="password"
+            />
+            <Box>
               <ChangePasswordUserFormActions />
-              <Box ml={1} component="span">
+              <Box ml="xs" style={{ display: "inline-block" }}>
                 <Button
-                  variant="contained"
-                  color="inherit"
-                  LinkComponent={Link}
+                  variant="outlined"
+                  color="gray"
+                  component={Link}
                   href="/admin-panel/users"
                 >
                   {t("admin-panel-users-edit:actions.cancel")}
                 </Button>
               </Box>
-            </Grid>
-          </Grid>
+            </Box>
+          </Stack>
         </form>
       </Container>
     </FormProvider>

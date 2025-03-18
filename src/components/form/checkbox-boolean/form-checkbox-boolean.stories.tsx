@@ -4,12 +4,10 @@ import { useForm, FormProvider } from "react-hook-form";
 import FormCheckboxBooleanInput, {
   CheckboxBooleanInputProps,
 } from "./form-checkbox-boolean";
-
 export default {
   title: "Components/Form/CheckboxBooleanInput",
   component: FormCheckboxBooleanInput,
 } as Meta;
-
 const Template: StoryFn<CheckboxBooleanInputProps & { name: string }> = (
   args
 ) => {
@@ -18,7 +16,6 @@ const Template: StoryFn<CheckboxBooleanInputProps & { name: string }> = (
       sampleCheckbox: false,
     },
   });
-
   return (
     <FormProvider {...methods}>
       <form>
@@ -27,7 +24,6 @@ const Template: StoryFn<CheckboxBooleanInputProps & { name: string }> = (
     </FormProvider>
   );
 };
-
 export const Default = Template.bind({});
 Default.args = {
   label: "Sample Form Checkbox",

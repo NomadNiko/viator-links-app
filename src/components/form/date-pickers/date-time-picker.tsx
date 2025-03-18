@@ -1,86 +1,50 @@
-import * as React from "react";
-import {
-  DateTimePicker,
-  DateOrTimeView,
-  LocalizationProvider,
-} from "@mui/x-date-pickers";
+import { DateTimePicker } from "@mantine/dates";
 import {
   Controller,
   ControllerProps,
   FieldPath,
   FieldValues,
 } from "react-hook-form";
-import { ForwardedRef, forwardRef } from "react";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
-import useLanguage from "@/services/i18n/use-language";
-import { getValueByKey } from "@/components/form/date-pickers/helper";
-
+import { forwardRef } from "react";
 type ValueDateType = Date | null | undefined;
 type DateTimePickerFieldProps = {
   disabled?: boolean;
-  className?: string;
-  views?: readonly DateOrTimeView[];
   minDate?: Date;
   maxDate?: Date;
   autoFocus?: boolean;
-  readOnly?: boolean;
   label: string;
   testId?: string;
   error?: string;
   defaultValue?: ValueDateType;
+  placeholder?: string;
+  clearable?: boolean;
 };
-const DateTimePickerInput = forwardRef(DateTimePickerInputRaw) as never as (
-  props: DateTimePickerFieldProps & {
-    name: string;
-    value: ValueDateType;
-    onChange: (value: ValueDateType) => void;
-    onBlur: () => void;
-  } & { ref?: ForwardedRef<HTMLDivElement | null> }
-) => ReturnType<typeof DateTimePickerInputRaw>;
-
-function DateTimePickerInputRaw(
-  props: DateTimePickerFieldProps & {
-    name: string;
-    value: ValueDateType;
-    onChange: (value: ValueDateType) => void;
-    onBlur: () => void;
-  },
-  ref?: ForwardedRef<HTMLDivElement | null>
-) {
-  const language = useLanguage();
-
-  return (
-    <LocalizationProvider
-      dateAdapter={AdapterDateFns}
-      adapterLocale={getValueByKey(language)}
-    >
+const CustomDateTimePicker = forwardRef(
+  (
+    props: DateTimePickerFieldProps & {
+      value: ValueDateType;
+      onChange: (value: ValueDateType) => void;
+      onBlur: () => void;
+    }
+  ) => {
+    return (
       <DateTimePicker
-        ref={ref}
-        name={props.name}
-        label={props.label}
         value={props.value}
-        onClose={props.onBlur}
+        onChange={props.onChange}
+        onBlur={props.onBlur}
         disabled={props.disabled}
-        autoFocus={props.autoFocus}
-        defaultValue={props.defaultValue}
-        slotProps={{
-          textField: {
-            helperText: props.error,
-            error: !!props.error,
-            InputProps: {
-              readOnly: props.readOnly,
-            },
-          },
-        }}
-        onAccept={props.onChange}
+        placeholder={props.placeholder}
+        clearable={props.clearable}
         minDate={props.minDate}
         maxDate={props.maxDate}
-        views={props.views}
+        label={props.label}
+        error={props.error}
         data-testid={props.testId}
       />
-    </LocalizationProvider>
-  );
-}
+    );
+  }
+);
+CustomDateTimePicker.displayName = "CustomDateTimePicker";
 function FormDateTimePickerInput<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
@@ -92,25 +56,22 @@ function FormDateTimePickerInput<
     <Controller
       name={props.name}
       defaultValue={props.defaultValue}
-      render={({ field, fieldState }) => {
-        return (
-          <DateTimePickerInput
-            {...field}
-            defaultValue={props.defaultValue}
-            autoFocus={props.autoFocus}
-            label={props.label}
-            disabled={props.disabled}
-            readOnly={props.readOnly}
-            views={props.views}
-            testId={props.testId}
-            minDate={props.minDate}
-            maxDate={props.maxDate}
-            error={fieldState.error?.message}
-          />
-        );
-      }}
+      render={({ field, fieldState }) => (
+        <CustomDateTimePicker
+          {...field}
+          defaultValue={props.defaultValue}
+          autoFocus={props.autoFocus}
+          label={props.label}
+          disabled={props.disabled}
+          testId={props.testId}
+          minDate={props.minDate}
+          maxDate={props.maxDate}
+          placeholder={props.placeholder}
+          clearable={props.clearable}
+          error={fieldState.error?.message}
+        />
+      )}
     />
   );
 }
-
 export default FormDateTimePickerInput;

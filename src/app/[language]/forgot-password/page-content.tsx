@@ -1,12 +1,12 @@
 "use client";
-import Button from "@mui/material/Button";
+import { Button } from "@/components/mantine/core/Button";
 import withPageRequiredGuest from "@/services/auth/with-page-required-guest";
 import { useForm, FormProvider, useFormState } from "react-hook-form";
 import { useAuthForgotPasswordService } from "@/services/api/services/auth";
-import Container from "@mui/material/Container";
-import Grid from "@mui/material/Grid2";
-import Typography from "@mui/material/Typography";
-import FormTextInput from "@/components/form/text-input/form-text-input";
+import { Container } from "@/components/mantine/layout/Container";
+import { Stack } from "@mantine/core";
+import { Typography } from "@/components/mantine/core/Typography";
+import { FormTextInput } from "@/components/mantine/form/TextInput";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useSnackbar } from "@/hooks/use-snackbar";
@@ -19,7 +19,6 @@ type ForgotPasswordFormData = {
 
 const useValidationSchema = () => {
   const { t } = useTranslation("forgot-password");
-
   return yup.object().shape({
     email: yup
       .string()
@@ -31,15 +30,8 @@ const useValidationSchema = () => {
 function FormActions() {
   const { t } = useTranslation("forgot-password");
   const { isSubmitting } = useFormState();
-
   return (
-    <Button
-      variant="contained"
-      color="primary"
-      type="submit"
-      disabled={isSubmitting}
-      data-testid="send-email"
-    >
+    <Button type="submit" disabled={isSubmitting} data-testid="send-email">
       {t("forgot-password:actions.submit")}
     </Button>
   );
@@ -62,7 +54,6 @@ function Form() {
 
   const onSubmit = handleSubmit(async (formData) => {
     const { data, status } = await fetchAuthForgotPassword(formData);
-
     if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
       (Object.keys(data.errors) as Array<keyof ForgotPasswordFormData>).forEach(
         (key) => {
@@ -74,10 +65,8 @@ function Form() {
           });
         }
       );
-
       return;
     }
-
     if (status === HTTP_CODES_ENUM.NO_CONTENT) {
       enqueueSnackbar(t("forgot-password:alerts.success"), {
         variant: "success",
@@ -87,25 +76,18 @@ function Form() {
 
   return (
     <FormProvider {...methods}>
-      <Container maxWidth="xs">
+      <Container size="xs">
         <form onSubmit={onSubmit}>
-          <Grid container spacing={2} mb={2}>
-            <Grid size={{ xs: 12 }} mt={3}>
-              <Typography variant="h6">{t("forgot-password:title")}</Typography>
-            </Grid>
-            <Grid size={{ xs: 12 }}>
-              <FormTextInput<ForgotPasswordFormData>
-                name="email"
-                label={t("forgot-password:inputs.email.label")}
-                type="email"
-                testId="email"
-              />
-            </Grid>
-
-            <Grid size={{ xs: 12 }}>
-              <FormActions />
-            </Grid>
-          </Grid>
+          <Stack gap="md" mb="md" mt="lg">
+            <Typography variant="h6">{t("forgot-password:title")}</Typography>
+            <FormTextInput<ForgotPasswordFormData>
+              name="email"
+              label={t("forgot-password:inputs.email.label")}
+              type="email"
+              testId="email"
+            />
+            <FormActions />
+          </Stack>
         </form>
       </Container>
     </FormProvider>

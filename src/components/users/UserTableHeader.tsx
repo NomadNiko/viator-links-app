@@ -1,16 +1,8 @@
-import TableRow from "@mui/material/TableRow";
-import TableCell from "@mui/material/TableCell";
-import LinearProgress from "@mui/material/LinearProgress";
-import { styled } from "@mui/material/styles";
+import { Loader } from "@mantine/core";
 import { SortEnum } from "@/services/api/types/sort-type";
 import { User } from "@/services/api/types/user";
 import { useTranslation } from "@/services/i18n/client";
 import TableSortCell from "./TableSortCell";
-
-const TableCellLoadingContainer = styled(TableCell)(() => ({
-  padding: 0,
-}));
-
 interface UserTableHeaderProps {
   orderBy: keyof User;
   order: SortEnum;
@@ -20,7 +12,6 @@ interface UserTableHeaderProps {
   ) => void;
   isFetchingNextPage: boolean;
 }
-
 function UserTableHeader({
   orderBy,
   order,
@@ -28,11 +19,10 @@ function UserTableHeader({
   isFetchingNextPage,
 }: UserTableHeaderProps) {
   const { t: tUsers } = useTranslation("admin-panel-users");
-
   return (
     <>
-      <TableRow>
-        <TableCell style={{ width: 50 }}></TableCell>
+      <tr>
+        <th style={{ width: 50 }}></th>
         <TableSortCell<User>
           width={100}
           orderBy={orderBy}
@@ -42,9 +32,9 @@ function UserTableHeader({
         >
           {tUsers("admin-panel-users:table.column1")}
         </TableSortCell>
-        <TableCell style={{ width: 200 }}>
+        <th style={{ width: 200 }}>
           {tUsers("admin-panel-users:table.column2")}
-        </TableCell>
+        </th>
         <TableSortCell<User>
           orderBy={orderBy}
           order={order}
@@ -53,20 +43,19 @@ function UserTableHeader({
         >
           {tUsers("admin-panel-users:table.column3")}
         </TableSortCell>
-        <TableCell style={{ width: 80 }}>
+        <th style={{ width: 80 }}>
           {tUsers("admin-panel-users:table.column4")}
-        </TableCell>
-        <TableCell style={{ width: 130 }}></TableCell>
-      </TableRow>
+        </th>
+        <th style={{ width: 130 }}></th>
+      </tr>
       {isFetchingNextPage && (
-        <TableRow>
-          <TableCellLoadingContainer colSpan={6}>
-            <LinearProgress />
-          </TableCellLoadingContainer>
-        </TableRow>
+        <tr>
+          <td colSpan={6} style={{ padding: 0 }}>
+            <Loader size="sm" style={{ width: "100%" }} />
+          </td>
+        </tr>
       )}
     </>
   );
 }
-
 export default UserTableHeader;

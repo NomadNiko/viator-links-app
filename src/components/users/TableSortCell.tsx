@@ -1,6 +1,16 @@
 import { PropsWithChildren } from "react";
-import TableCell from "@mui/material/TableCell";
-import TableSortLabel from "@mui/material/TableSortLabel";
+import {
+  UnstyledButton,
+  Group,
+  Center,
+  Text,
+  useMantineTheme,
+} from "@mantine/core";
+import {
+  IconChevronUp,
+  IconChevronDown,
+  IconSelector,
+} from "@tabler/icons-react";
 import { SortEnum } from "@/services/api/types/sort-type";
 
 type TableSortCellProps<T> = PropsWithChildren<{
@@ -9,7 +19,7 @@ type TableSortCellProps<T> = PropsWithChildren<{
   order: SortEnum;
   column: keyof T;
   handleRequestSort: (
-    event: React.MouseEvent<unknown>,
+    event: React.MouseEvent<HTMLElement>,
     property: keyof T
   ) => void;
 }>;
@@ -22,19 +32,33 @@ function TableSortCell<T>({
   handleRequestSort,
   children,
 }: TableSortCellProps<T>) {
+  const isActive = orderBy === column;
+  const theme = useMantineTheme();
+
   return (
-    <TableCell
-      style={{ width }}
-      sortDirection={orderBy === column ? order : false}
-    >
-      <TableSortLabel
-        active={orderBy === column}
-        direction={orderBy === column ? order : SortEnum.ASC}
+    <th style={{ width }}>
+      <UnstyledButton
         onClick={(event) => handleRequestSort(event, column)}
+        style={{ width: "100%", padding: `${theme.spacing.xs} 0` }}
       >
-        {children}
-      </TableSortLabel>
-    </TableCell>
+        <Group justify="space-between">
+          <Text fw={500} size="sm">
+            {children}
+          </Text>
+          <Center>
+            {isActive ? (
+              order === SortEnum.ASC ? (
+                <IconChevronUp size={16} />
+              ) : (
+                <IconChevronDown size={16} />
+              )
+            ) : (
+              <IconSelector size={16} opacity={0.3} />
+            )}
+          </Center>
+        </Group>
+      </UnstyledButton>
+    </th>
   );
 }
 

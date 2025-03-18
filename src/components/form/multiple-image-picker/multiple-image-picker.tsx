@@ -2,10 +2,18 @@
 import { useFileUploadService } from "@/services/api/services/files";
 import { FileEntity } from "@/services/api/types/file-entity";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import { styled } from "@mui/material/styles";
+import {
+  Box,
+  Text,
+  Paper,
+  Button,
+  Group,
+  SimpleGrid,
+  ActionIcon,
+  Image as MantineImage,
+  useMantineTheme,
+} from "@mantine/core";
+import { IconX } from "@tabler/icons-react";
 import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import {
@@ -15,11 +23,6 @@ import {
   FieldValues,
 } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import IconButton from "@mui/material/IconButton";
-import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
-import ImageListItem from "@mui/material/ImageListItem";
-import ImageList from "@mui/material/ImageList";
-import Image from "next/image";
 
 type MultipleImagePickerProps = {
   error?: string;
@@ -31,54 +34,13 @@ type MultipleImagePickerProps = {
   label?: React.ReactNode;
 };
 
-const MultipleImagePickerContainer = styled("div")(({ theme }) => ({
-  display: "flex",
-  position: "relative",
-  flexDirection: "column",
-  alignItems: "center",
-  padding: theme.spacing(2),
-  marginTop: theme.spacing(2),
-  border: "1px dashed",
-  borderColor: theme.palette.divider,
-  borderRadius: theme.shape.borderRadius,
-  cursor: "pointer",
-
-  "&:hover": {
-    borderColor: theme.palette.text.primary,
-  },
-}));
-
-const StyledOverlay = styled("div")(() => {
-  return {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    position: "absolute",
-    top: 0,
-    right: 0,
-    left: 0,
-    bottom: 0,
-    background: "rgba(0, 0, 0, 0.7)",
-    transition: ".5s ease",
-    opacity: 0,
-    "&:hover": {
-      opacity: 1,
-    },
-    zIndex: 1,
-  };
-});
-
-const StyledImageWrapper = styled("div")({
-  position: "relative",
-  width: "100%",
-  height: "100%",
-});
-
 function MultipleImagePicker(props: MultipleImagePickerProps) {
   const { onChange, value } = props;
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const fetchFileUpload = useFileUploadService();
+  const theme = useMantineTheme();
+
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       setIsLoading(true);
@@ -90,6 +52,7 @@ function MultipleImagePicker(props: MultipleImagePickerProps) {
     },
     [fetchFileUpload, onChange, value]
   );
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
@@ -109,10 +72,24 @@ function MultipleImagePicker(props: MultipleImagePickerProps) {
     };
 
   return (
-    <MultipleImagePickerContainer {...getRootProps()}>
+    <Paper
+      {...getRootProps()}
+      p={theme.spacing.md}
+      mt={theme.spacing.md}
+      withBorder
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        padding: theme.spacing.md,
+        border: "1px dashed #ddd",
+        borderRadius: "8px",
+        cursor: "pointer",
+      }}
+    >
       {isDragActive && (
         <Box
-          sx={{
+          style={{
             position: "absolute",
             top: 0,
             left: 0,
@@ -120,84 +97,63 @@ function MultipleImagePicker(props: MultipleImagePickerProps) {
             right: 0,
             backgroundColor: "rgba(0, 0, 0, 0.5)",
             zIndex: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          <Typography
-            sx={{
-              color: "white",
-              fontWeight: "bold",
-              textAlign: "center",
-              mt: 10,
-            }}
-            variant="h5"
-          >
+          <Text size="xl" fw="bold" color="white" ta="center">
             {t("common:formInputs.multipleImageInput.dropzoneText")}
-          </Typography>
+          </Text>
         </Box>
       )}
       {props?.value?.length ? (
-        <>
-          <ImageList sx={{ width: `100%` }} cols={3} rowHeight={250}>
-            {props.value.map((item) => (
-              <ImageListItem key={item.id} style={{ overflow: "hidden" }}>
-                <StyledOverlay>
-                  <IconButton
-                    disableRipple
-                    onClick={removeImageHandle(item.id)}
-                    color="inherit"
-                  >
-                    <ClearOutlinedIcon
-                      sx={{ width: 50, height: 50, color: "white" }}
-                    />
-                  </IconButton>
-                </StyledOverlay>
-                <StyledImageWrapper>
-                  <Image
-                    src={item.path}
-                    alt={
-                      t("common:formInputs.multipleImageInput.imageAlt") ||
-                      "Uploaded image"
-                    }
-                    fill
-                    style={{ objectFit: "cover" }}
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                    priority
-                  />
-                </StyledImageWrapper>
-              </ImageListItem>
-            ))}
-          </ImageList>
-        </>
-      ) : (
-        <></>
-      )}
-
-      <Box sx={{ mt: 2 }}>
-        <Button
-          variant="contained"
-          component="label"
-          disabled={isLoading}
-          data-testid={props.testId}
-        >
+        <SimpleGrid cols={3} spacing="md" style={{ width: "100%" }}>
+          {props.value.map((item) => (
+            <Box key={item.id} style={{ position: "relative", height: 250 }}>
+              <MantineImage
+                src={item.path}
+                alt={
+                  t("common:formInputs.multipleImageInput.imageAlt") ||
+                  "Uploaded image"
+                }
+                height={250}
+                fit="cover"
+              />
+              <ActionIcon
+                color="red"
+                variant="filled"
+                onClick={removeImageHandle(item.id)}
+                style={{
+                  position: "absolute",
+                  top: 5,
+                  right: 5,
+                  zIndex: 2,
+                }}
+              >
+                <IconX size={18} />
+              </ActionIcon>
+            </Box>
+          ))}
+        </SimpleGrid>
+      ) : null}
+      <Group mt={theme.spacing.md}>
+        <Button loading={isLoading} data-testid={props.testId}>
           {isLoading
             ? t("common:loading")
             : t("common:formInputs.multipleImageInput.selectFile")}
           <input {...getInputProps()} />
         </Button>
-      </Box>
-
-      <Box sx={{ mt: 1 }}>
-        <Typography>
-          {t("common:formInputs.multipleImageInput.dragAndDrop")}
-        </Typography>
-      </Box>
-
+      </Group>
+      <Text mt="xs" size="sm" color="dimmed">
+        {t("common:formInputs.multipleImageInput.dragAndDrop")}
+      </Text>
       {props.error && (
-        <Box sx={{ mt: 1 }}>
-          <Typography sx={{ color: "red" }}>{props.error}</Typography>
-        </Box>
+        <Text color="red" size="sm" mt="xs">
+          {props.error}
+        </Text>
       )}
-    </MultipleImagePickerContainer>
+    </Paper>
   );
 }
 

@@ -1,22 +1,15 @@
 "use client";
-
-import { ForwardedRef, forwardRef } from "react";
+import { ForwardedRef, forwardRef, ReactNode } from "react";
 import {
   Controller,
   ControllerProps,
   FieldPath,
   FieldValues,
 } from "react-hook-form";
-import FormControl from "@mui/material/FormControl";
-import FormHelperText from "@mui/material/FormHelperText";
-import FormLabel from "@mui/material/FormLabel";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import FormGroup from "@mui/material/FormGroup";
+import { Checkbox, Stack, Text } from "@mantine/core";
 
 export type CheckboxInputProps<T> = {
   label: string;
-  type?: string;
   autoFocus?: boolean;
   disabled?: boolean;
   readOnly?: boolean;
@@ -25,7 +18,7 @@ export type CheckboxInputProps<T> = {
   keyValue: keyof T;
   options: T[];
   keyExtractor: (option: T) => string;
-  renderOption: (option: T) => React.ReactNode;
+  renderOption: (option: T) => ReactNode;
 };
 
 function CheckboxInputRaw<T>(
@@ -38,53 +31,50 @@ function CheckboxInputRaw<T>(
   ref?: ForwardedRef<HTMLDivElement | null>
 ) {
   const value = props.value ?? [];
-  const onChange = (checkboxValue: T) => () => {
+  const onChange = (checkboxValue: T) => (isChecked: boolean) => {
     const isExist = value
       .map((option) => option[props.keyValue])
       .includes(checkboxValue[props.keyValue]);
-
     const newValue = isExist
       ? value.filter(
           (option) => option[props.keyValue] !== checkboxValue[props.keyValue]
         )
       : [...value, checkboxValue];
-
     props.onChange(newValue);
+    console.log(isChecked);
   };
+
   return (
-    <FormControl
-      data-testid={props.testId}
-      component="fieldset"
-      variant="standard"
-      error={!!props.error}
-    >
-      <FormLabel component="legend" data-testid={`${props.testId}-label`}>
+    <div ref={ref} data-testid={props.testId}>
+      <Text fw={500} data-testid={`${props.testId}-label`}>
         {props.label}
-      </FormLabel>
-      <FormGroup ref={ref}>
+      </Text>
+      <Stack gap="xs" mt="xs">
         {props.options.map((option) => (
-          <FormControlLabel
+          <Checkbox
             key={props.keyExtractor(option)}
-            control={
-              <Checkbox
-                checked={value
-                  .map((valueOption) => valueOption[props.keyValue])
-                  .includes(option[props.keyValue])}
-                onChange={onChange(option)}
-                name={props.name}
-                data-testid={`${props.testId}-${props.keyExtractor(option)}`}
-              />
-            }
+            checked={value
+              .map((valueOption) => valueOption[props.keyValue])
+              .includes(option[props.keyValue])}
+            onChange={(event) => onChange(option)(event.currentTarget.checked)}
+            name={props.name}
             label={props.renderOption(option)}
+            data-testid={`${props.testId}-${props.keyExtractor(option)}`}
+            disabled={props.disabled}
           />
         ))}
-      </FormGroup>
+      </Stack>
       {!!props.error && (
-        <FormHelperText data-testid={`${props.testId}-error`}>
+        <Text
+          color="red"
+          size="sm"
+          mt="xs"
+          data-testid={`${props.testId}-error`}
+        >
           {props.error}
-        </FormHelperText>
+        </Text>
       )}
-    </FormControl>
+    </div>
   );
 }
 
@@ -114,7 +104,6 @@ function FormCheckboxInput<
           {...field}
           label={props.label}
           autoFocus={props.autoFocus}
-          type={props.type}
           error={fieldState.error?.message}
           disabled={props.disabled}
           readOnly={props.readOnly}

@@ -1,92 +1,67 @@
-import * as React from "react";
-import {
-  LocalizationProvider,
-  TimePicker,
-  TimeStepOptions,
-  TimeView,
-} from "@mui/x-date-pickers";
+import { TimeInput } from "@mantine/dates";
 import {
   Controller,
   ControllerProps,
   FieldPath,
   FieldValues,
 } from "react-hook-form";
-import { ForwardedRef, forwardRef } from "react";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
-import useLanguage from "@/services/i18n/use-language";
-import { getValueByKey } from "@/components/form/date-pickers/helper";
-
+import { ForwardedRef, forwardRef, ChangeEvent } from "react";
 type ValueDateType = Date | null | undefined;
 type TimePickerFieldProps = {
   disabled?: boolean;
-  className?: string;
-  views?: readonly TimeView[] | undefined;
   autoFocus?: boolean;
-  readOnly?: boolean;
   label: string;
   testId?: string;
   error?: string;
   defaultValue?: ValueDateType;
+  placeholder?: string;
+  clearable?: boolean;
   format?: string;
-  minTime?: Date | undefined;
-  maxTime?: Date | undefined;
-  timeSteps?: TimeStepOptions | undefined;
+  withSeconds?: boolean;
 };
-
-const TimePickerInput = forwardRef(TimePickerInputRaw) as never as (
-  props: TimePickerFieldProps & {
-    name: string;
-    value: ValueDateType;
-    onChange: (value: ValueDateType) => void;
-    onBlur: () => void;
-  } & { ref?: ForwardedRef<HTMLDivElement | null> }
-) => ReturnType<typeof TimePickerInputRaw>;
-
-function TimePickerInputRaw(
-  props: TimePickerFieldProps & {
-    name: string;
-    value: ValueDateType;
-    onChange: (value: ValueDateType) => void;
-    onBlur: () => void;
-  },
-  ref?: ForwardedRef<HTMLDivElement | null>
-) {
-  const language = useLanguage();
-
-  return (
-    <LocalizationProvider
-      dateAdapter={AdapterDateFns}
-      adapterLocale={getValueByKey(language)}
-    >
-      <TimePicker
+const CustomTimeInput = forwardRef(
+  (
+    props: TimePickerFieldProps & {
+      value: ValueDateType;
+      onChange: (value: ValueDateType) => void;
+      onBlur: () => void;
+    },
+    ref: ForwardedRef<HTMLInputElement>
+  ) => {
+    // Convert Date to string for TimeInput
+    const timeString =
+      props.value instanceof Date ? props.value.toTimeString().slice(0, 8) : "";
+    // Handle changes by converting the event to the correct format
+    const handleTimeChange = (event: ChangeEvent<HTMLInputElement>) => {
+      const value = event.currentTarget.value;
+      if (!value) {
+        props.onChange(null);
+        return;
+      }
+      const [hours, minutes, seconds] = value.split(":").map(Number);
+      const date = new Date();
+      date.setHours(hours || 0);
+      date.setMinutes(minutes || 0);
+      date.setSeconds(seconds || 0);
+      props.onChange(date);
+    };
+    return (
+      <TimeInput
         ref={ref}
-        name={props.name}
-        label={props.label}
-        value={props.value}
+        value={timeString}
+        onChange={handleTimeChange}
+        onBlur={props.onBlur}
         disabled={props.disabled}
-        autoFocus={props.autoFocus}
-        defaultValue={props.defaultValue}
-        onClose={props.onBlur}
-        slotProps={{
-          textField: {
-            helperText: props.error,
-            error: !!props.error,
-            InputProps: {
-              readOnly: props.readOnly,
-            },
-          },
-        }}
-        onAccept={props.onChange}
-        views={props.views}
-        format={props.format}
+        placeholder={props.placeholder}
+        label={props.label}
+        error={props.error}
+        withSeconds={props.withSeconds}
         data-testid={props.testId}
-        minTime={props.minTime}
-        maxTime={props.maxTime}
-        timeSteps={props.timeSteps}
       />
-    </LocalizationProvider>
-  );
-}
+    );
+  }
+);
+CustomTimeInput.displayName = "CustomTimeInput";
 function FormTimePickerInput<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
@@ -98,27 +73,21 @@ function FormTimePickerInput<
     <Controller
       name={props.name}
       defaultValue={props.defaultValue}
-      render={({ field, fieldState }) => {
-        return (
-          <TimePickerInput
-            {...field}
-            defaultValue={props.defaultValue}
-            autoFocus={props.autoFocus}
-            label={props.label}
-            disabled={props.disabled}
-            readOnly={props.readOnly}
-            views={props.views}
-            testId={props.testId}
-            format={props.format}
-            error={fieldState.error?.message}
-            minTime={props.minTime}
-            maxTime={props.maxTime}
-            timeSteps={props.timeSteps}
-          />
-        );
-      }}
+      render={({ field, fieldState }) => (
+        <CustomTimeInput
+          {...field}
+          defaultValue={props.defaultValue}
+          autoFocus={props.autoFocus}
+          label={props.label}
+          disabled={props.disabled}
+          testId={props.testId}
+          placeholder={props.placeholder}
+          clearable={props.clearable}
+          withSeconds={props.format?.includes("s")}
+          error={fieldState.error?.message}
+        />
+      )}
     />
   );
 }
-
 export default FormTimePickerInput;

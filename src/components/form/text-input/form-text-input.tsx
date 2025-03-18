@@ -1,18 +1,12 @@
 "use client";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import Visibility from "@mui/icons-material/Visibility";
-import IconButton from "@mui/material/IconButton";
-import InputAdornment from "@mui/material/InputAdornment";
-import TextField from "@mui/material/TextField";
-import React, { ChangeEvent, forwardRef, useState } from "react";
+import { TextInput, PasswordInput } from "@mantine/core";
+import { ChangeEvent, forwardRef } from "react";
 import {
   Controller,
   ControllerProps,
   FieldPath,
   FieldValues,
 } from "react-hook-form";
-import { InputBaseComponentProps } from "@mui/material/InputBase/InputBase";
-
 type TextInputProps = {
   label: string;
   type?: string;
@@ -22,80 +16,65 @@ type TextInputProps = {
   error?: string;
   testId?: string;
   autoComplete?: string;
-  inputComponent?: React.ElementType<InputBaseComponentProps>;
   multiline?: boolean;
   minRows?: number;
   maxRows?: number;
-  size?: "small" | "medium";
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
+  placeholder?: string;
 };
-
-const TextInput = forwardRef<
-  HTMLDivElement | null,
-  TextInputProps & {
-    name: string;
-    value: string;
-    onChange: (
-      value: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ) => void;
-    onBlur: () => void;
+type CustomInputProps = TextInputProps & {
+  name: string;
+  value: string;
+  onChange: (event: ChangeEvent<HTMLInputElement> | string) => void;
+  onBlur: () => void;
+};
+const CustomTextInput = forwardRef<HTMLInputElement, CustomInputProps>(
+  function CustomTextInput(props, ref) {
+    // For PasswordInput, we need to convert string to event handler
+    const handlePasswordChange = (event: ChangeEvent<HTMLInputElement>) => {
+      props.onChange(event);
+    };
+    if (props.type === "password") {
+      return (
+        <PasswordInput
+          ref={ref}
+          name={props.name}
+          size={props.size}
+          value={props.value}
+          onChange={handlePasswordChange}
+          onBlur={props.onBlur}
+          label={props.label}
+          autoFocus={props.autoFocus}
+          placeholder={props.placeholder}
+          error={props.error}
+          data-testid={props.testId}
+          disabled={props.disabled}
+          readOnly={props.readOnly}
+          autoComplete={props.autoComplete}
+        />
+      );
+    }
+    return (
+      <TextInput
+        ref={ref}
+        name={props.name}
+        size={props.size}
+        value={props.value}
+        onChange={handlePasswordChange}
+        onBlur={props.onBlur}
+        label={props.label}
+        autoFocus={props.autoFocus}
+        type={props.type}
+        placeholder={props.placeholder}
+        error={props.error}
+        data-testid={props.testId}
+        disabled={props.disabled}
+        readOnly={props.readOnly}
+        autoComplete={props.autoComplete}
+      />
+    );
   }
->(function TextInput(props, ref) {
-  const [isShowPassword, setIsShowPassword] = useState(false);
-
-  const handleClickShowPassword = () => setIsShowPassword((show) => !show);
-
-  const handleMouseDownPassword = (
-    event: React.MouseEvent<HTMLButtonElement>
-  ) => {
-    event.preventDefault();
-  };
-  return (
-    <TextField
-      ref={ref}
-      name={props.name}
-      size={props.size}
-      value={props.value}
-      onChange={props.onChange}
-      onBlur={props.onBlur}
-      label={props.label}
-      autoFocus={props.autoFocus}
-      type={props.type === "password" && isShowPassword ? "text" : props.type}
-      variant="outlined"
-      fullWidth
-      error={!!props.error}
-      data-testid={props.testId}
-      helperText={props.error}
-      disabled={props.disabled}
-      autoComplete={props.autoComplete}
-      multiline={props.multiline}
-      minRows={props.minRows}
-      maxRows={props.maxRows}
-      slotProps={{
-        formHelperText: {
-          ["data-testid" as string]: `${props.testId}-error`,
-        },
-        input: {
-          readOnly: props.readOnly,
-          inputComponent: props.inputComponent,
-          endAdornment:
-            props.type === "password" ? (
-              <InputAdornment position="end">
-                <IconButton
-                  aria-label="toggle password visibility"
-                  onClick={handleClickShowPassword}
-                  onMouseDown={handleMouseDownPassword}
-                  edge="end"
-                >
-                  {isShowPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            ) : undefined,
-        },
-      }}
-    />
-  );
-});
-
+);
 function FormTextInput<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
@@ -108,7 +87,7 @@ function FormTextInput<
       name={props.name}
       defaultValue={props.defaultValue}
       render={({ field, fieldState }) => (
-        <TextInput
+        <CustomTextInput
           {...field}
           label={props.label}
           autoFocus={props.autoFocus}
@@ -117,15 +96,12 @@ function FormTextInput<
           disabled={props.disabled}
           readOnly={props.readOnly}
           testId={props.testId}
-          multiline={props.multiline}
-          minRows={props.minRows}
-          maxRows={props.maxRows}
-          inputComponent={props.inputComponent}
+          placeholder={props.placeholder}
+          autoComplete={props.autoComplete}
           size={props.size}
         />
       )}
     />
   );
 }
-
 export default FormTextInput;

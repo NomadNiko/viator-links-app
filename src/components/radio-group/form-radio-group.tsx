@@ -1,5 +1,4 @@
 "use client";
-
 import { ForwardedRef, forwardRef, ReactNode } from "react";
 import {
   Controller,
@@ -7,16 +6,10 @@ import {
   FieldPath,
   FieldValues,
 } from "react-hook-form";
-import FormControl from "@mui/material/FormControl";
-import FormHelperText from "@mui/material/FormHelperText";
-import FormLabel from "@mui/material/FormLabel";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
+import { Radio, Stack, Text } from "@mantine/core";
 
 type RadioInputProps<T> = {
   label: string;
-  type?: string;
   autoFocus?: boolean;
   disabled?: boolean;
   readOnly?: boolean;
@@ -39,42 +32,45 @@ function RadioInputRaw<T>(
 ) {
   const value = props.value;
 
-  const onChange = (radioValue: T) => () => {
-    props.onChange(radioValue);
-  };
-
   return (
-    <FormControl
-      data-testid={props.testId}
-      component="fieldset"
-      variant="standard"
-      error={!!props.error}
-    >
-      <FormLabel component="legend" data-testid={`${props.testId}-label`}>
+    <div ref={ref} data-testid={props.testId}>
+      <Text fw={500} data-testid={`${props.testId}-label`}>
         {props.label}
-      </FormLabel>
-      <RadioGroup ref={ref}>
-        {props.options.map((option) => (
-          <FormControlLabel
-            key={props.keyExtractor(option)}
-            control={
-              <Radio
-                checked={option[props.keyValue] === value?.[props.keyValue]}
-                name={props.name}
-                onChange={onChange(option)}
-                data-testid={`${props.testId}-${props.keyExtractor(option)}`}
-              />
-            }
-            label={props.renderOption(option)}
-          />
-        ))}
-      </RadioGroup>
+      </Text>
+      <Radio.Group
+        value={value?.[props.keyValue]?.toString()}
+        onChange={(val) => {
+          const selectedOption = props.options.find(
+            (option) => option[props.keyValue]?.toString() === val
+          );
+          if (selectedOption) {
+            props.onChange(selectedOption);
+          }
+        }}
+      >
+        <Stack gap="xs" mt="xs">
+          {props.options.map((option) => (
+            <Radio
+              key={props.keyExtractor(option)}
+              value={option[props.keyValue]?.toString()}
+              label={props.renderOption(option)}
+              data-testid={`${props.testId}-${props.keyExtractor(option)}`}
+              disabled={props.disabled}
+            />
+          ))}
+        </Stack>
+      </Radio.Group>
       {!!props.error && (
-        <FormHelperText data-testid={`${props.testId}-error`}>
+        <Text
+          color="red"
+          size="sm"
+          mt="xs"
+          data-testid={`${props.testId}-error`}
+        >
           {props.error}
-        </FormHelperText>
+        </Text>
       )}
-    </FormControl>
+    </div>
   );
 }
 
@@ -104,7 +100,6 @@ function FormRadioInput<
           {...field}
           label={props.label}
           autoFocus={props.autoFocus}
-          type={props.type}
           error={fieldState.error?.message}
           disabled={props.disabled}
           readOnly={props.readOnly}

@@ -1,11 +1,10 @@
 "use client";
-
 import { RoleEnum } from "@/services/api/types/role";
 import withPageRequiredAuth from "@/services/auth/with-page-required-auth";
 import { useTranslation } from "@/services/i18n/client";
-import Container from "@mui/material/Container";
-import Grid from "@mui/material/Grid2";
-import Typography from "@mui/material/Typography";
+import { Container } from "@/components/mantine/layout/Container";
+import { Grid, Group } from "@mantine/core";
+import { Typography } from "@/components/mantine/core/Typography";
 import { useCallback, useMemo, useState } from "react";
 import { useGetUsersQuery } from "./queries/queries";
 import removeDuplicatesFromArrayObjects from "@/services/helpers/remove-duplicates-from-array-of-objects";
@@ -14,7 +13,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { UserFilterType } from "./user-filter-types";
 import { SortEnum } from "@/services/api/types/sort-type";
 import { User } from "@/services/api/types/user";
-import Button from "@mui/material/Button";
+import { Button } from "@/components/mantine/core/Button";
 import Link from "@/components/link";
 import UsersTable from "@/components/users/UsersTable";
 
@@ -63,7 +62,6 @@ function Users() {
     if (searchParamsFilter) {
       return JSON.parse(searchParamsFilter) as UserFilterType;
     }
-
     return undefined;
   }, [searchParams]);
 
@@ -81,39 +79,33 @@ function Users() {
   const users = useMemo(() => {
     const result =
       (data?.pages.flatMap((page) => page?.data) as User[]) ?? ([] as User[]);
-
     return removeDuplicatesFromArrayObjects(result, "id");
   }, [data]);
 
   return (
-    <Container maxWidth="xl">
-      <Grid container spacing={3} pt={3}>
+    <Container size="xl">
+      <Grid pt="md">
         {/* Header with title and actions */}
-        <Grid container spacing={3} size={{ xs: 12 }}>
-          <Grid size="grow">
+        <Grid.Col span={12}>
+          <Group justify="space-between">
             <Typography variant="h3">
               {tUsers("admin-panel-users:title")}
             </Typography>
-          </Grid>
-          <Grid container size="auto" wrap="nowrap" spacing={2}>
-            <Grid size="auto">
+            <Group>
               <UserFilter />
-            </Grid>
-            <Grid size="auto">
               <Button
-                variant="contained"
-                LinkComponent={Link}
+                component={Link}
                 href="/admin-panel/users/create"
-                color="success"
+                color="green"
               >
                 {tUsers("admin-panel-users:actions.create")}
               </Button>
-            </Grid>
-          </Grid>
-        </Grid>
+            </Group>
+          </Group>
+        </Grid.Col>
 
         {/* Users table */}
-        <Grid size={{ xs: 12 }} mb={2}>
+        <Grid.Col span={12} mb="sm">
           <UsersTable
             users={users}
             order={order}
@@ -122,7 +114,7 @@ function Users() {
             handleScroll={handleScroll}
             isFetchingNextPage={isFetchingNextPage}
           />
-        </Grid>
+        </Grid.Col>
       </Grid>
     </Container>
   );

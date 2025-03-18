@@ -1,16 +1,13 @@
 "use client";
-
 import { useEffect } from "react";
-import CircularProgress from "@mui/material/CircularProgress";
-import Box from "@mui/material/Box";
+import { Loader, Center } from "@mantine/core";
 import {
   useAuthConfirmNewEmailService,
   useAuthGetMeService,
 } from "@/services/api/services/auth";
 import { useRouter } from "next/navigation";
 import { useSnackbar } from "@/hooks/use-snackbar";
-import Container from "@mui/material/Container";
-import Grid from "@mui/material/Grid2";
+import { Container } from "@/components/mantine/layout/Container";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { useTranslation } from "@/services/i18n/client";
 import useAuthActions from "@/services/auth/use-auth-actions";
@@ -31,7 +28,6 @@ export default function ConfirmNewEmail() {
 
       const params = new URLSearchParams(window.location.search);
       const hash = params.get("hash");
-
       if (!hash) return;
 
       const { status } = await fetchConfirmNewEmail({
@@ -45,11 +41,9 @@ export default function ConfirmNewEmail() {
 
         if (user) {
           const { data, status: statusGetMe } = await fetchAuthGetMe();
-
           if (statusGetMe === HTTP_CODES_ENUM.OK) {
             setUser(data);
           }
-
           router.replace("/profile");
         } else {
           router.replace("/");
@@ -75,21 +69,10 @@ export default function ConfirmNewEmail() {
   ]);
 
   return (
-    <Container maxWidth="sm">
-      <Grid container>
-        <Grid size={{ xs: 12 }}>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              p: 2,
-            }}
-          >
-            <CircularProgress />
-          </Box>
-        </Grid>
-      </Grid>
+    <Container size="sm">
+      <Center style={{ height: 200 }}>
+        <Loader size="lg" />
+      </Center>
     </Container>
   );
 }

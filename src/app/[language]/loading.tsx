@@ -1,10 +1,9 @@
-import Box from "@mui/material/Box";
-import LinearProgress from "@mui/material/LinearProgress";
+import { Box, LoadingOverlay } from "@mantine/core";
 
 function Loading() {
   return (
-    <Box sx={{ width: "100%" }}>
-      <LinearProgress />
+    <Box style={{ width: "100%", height: "100vh", position: "relative" }}>
+      <LoadingOverlay visible={true} />
     </Box>
   );
 }

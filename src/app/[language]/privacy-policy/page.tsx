@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { getServerTranslation } from "@/services/i18n";
-import Container from "@mui/material/Container";
-import Typography from "@mui/material/Typography";
-import MuiLink from "@mui/material/Link";
+import { Container } from "@/components/mantine/layout/Container";
+import { Typography } from "@/components/mantine/core/Typography";
+import { Text, Anchor } from "@mantine/core";
 import { COMPANY_EMAIL } from "@/config/constants";
 
 type Props = {
@@ -20,48 +20,33 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 async function PrivacyPolicy(props: Props) {
   const params = await props.params;
   const { t } = await getServerTranslation(params.language, "privacy-policy");
-
   return (
-    <Container maxWidth="md" sx={{ py: 8 }}>
+    <Container size="md" py="xl">
       <Typography
         variant="h2"
-        component="h1"
         data-testid="privacy-policy-title"
         gutterBottom
-        sx={{ fontWeight: "bold" }}
+        fw="bold"
       >
         {t("title")}
       </Typography>
-
-      <Typography gutterBottom paragraph>
-        {t("lastUpdated")}
-      </Typography>
-
-      <Typography
-        data-testid="privacy-policy-description"
-        gutterBottom
-        paragraph
-      >
+      <Text mb="md">{t("lastUpdated")}</Text>
+      <Text mb="md" data-testid="privacy-policy-description">
         {t("description1")}
-      </Typography>
-
-      <Typography gutterBottom paragraph>
-        {t("description2")}
-      </Typography>
-
-      <Typography gutterBottom paragraph sx={{ mt: 4 }}>
+      </Text>
+      <Text mb="md">{t("description2")}</Text>
+      <Text mt="xl" mb="md">
         {t("contact_info")}
-      </Typography>
-
-      <Typography paragraph>
-        <MuiLink
+      </Text>
+      <Text>
+        <Anchor
           target="_blank"
           rel="external noopener noreferrer"
           href={`mailto:${COMPANY_EMAIL}`}
         >
           {COMPANY_EMAIL}
-        </MuiLink>
-      </Typography>
+        </Anchor>
+      </Text>
     </Container>
   );
 }
