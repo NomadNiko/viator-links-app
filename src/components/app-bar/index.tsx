@@ -14,29 +14,11 @@ const ResponsiveAppBar = ({ children }: { children: React.ReactNode }) => {
     <AppShell
       header={{ height: 60 }}
       navbar={{
-        width: "25%", // Set to 25% of viewport width
+        width: { base: 240, sm: 300 },
         breakpoint: "sm",
         collapsed: { desktop: true, mobile: !opened },
       }}
       padding="md"
-      styles={{
-        navbar: {
-          zIndex: 1000, // Ensure navbar is above other content
-          // Use left positioning for mobile navbar
-          left: 0,
-          top: 60, // Below the header
-          bottom: 0,
-          position: "fixed",
-          transition: "transform 300ms ease, width 300ms ease",
-          // Add box shadow when opened
-          boxShadow: opened ? "0 0 10px rgba(0, 0, 0, 0.1)" : "none",
-          background: "var(--mantine-color-body)",
-        },
-        main: {
-          // Ensure main content has padding to avoid overlapping with header
-          paddingTop: `calc(var(--mantine-spacing-md) + 60px)`,
-        },
-      }}
     >
       <AppShell.Header>
         <Container size="xl" py="md">
@@ -78,7 +60,7 @@ const ResponsiveAppBar = ({ children }: { children: React.ReactNode }) => {
             right: 0,
             bottom: 0,
             background: "rgba(0, 0, 0, 0.3)",
-            zIndex: 999, // Just below navbar but above content
+            zIndex: 5, // Lower than default Mantine navbar z-index
             cursor: "pointer",
           }}
           onClick={() => setOpened(false)}
