@@ -1,5 +1,5 @@
 "use client";
-import { AppShell, Burger, Group, Container, Box } from "@mantine/core";
+import { AppShell, Burger, Group, Container } from "@mantine/core";
 import { useState } from "react";
 import { SwitchThemeButton } from "@/components/mantine/theme/SwitchThemeButton";
 import Logo from "./logo";
@@ -9,7 +9,6 @@ import AuthSection from "./auth-section";
 
 const ResponsiveAppBar = ({ children }: { children: React.ReactNode }) => {
   const [opened, setOpened] = useState(false);
-
   return (
     <AppShell
       header={{ height: 60 }}
@@ -23,25 +22,31 @@ const ResponsiveAppBar = ({ children }: { children: React.ReactNode }) => {
       <AppShell.Header>
         <Container size="xl" py="md">
           <Group justify="space-between">
-            {/* Mobile Burger */}
-            <Burger
-              opened={opened}
-              onClick={() => setOpened((o) => !o)}
-              hiddenFrom="md"
-              size="sm"
-            />
-            {/* Desktop Logo */}
-            <Logo />
-            {/* Mobile Logo */}
+            {/* Left side: Burger (mobile), Logo, Navigation Links */}
+            <Group>
+              {/* Mobile Burger */}
+              <Burger
+                opened={opened}
+                onClick={() => setOpened((o) => !o)}
+                hiddenFrom="md"
+                size="sm"
+              />
+              {/* Desktop Logo */}
+              <Logo />
+              {/* Desktop Navigation - moved next to Logo */}
+              <DesktopNavigation onCloseMenu={() => setOpened(false)} />
+            </Group>
+
+            {/* Mobile Logo - centered */}
             <Logo isMobile />
-            {/* Desktop Navigation */}
-            <DesktopNavigation onCloseMenu={() => setOpened(false)} />
-            {/* Theme Switch Button */}
-            <Box>
+
+            {/* Right side: Theme Switch and Auth Section */}
+            <Group>
+              {/* Theme Switch Button - moved next to Auth Section */}
               <SwitchThemeButton />
-            </Box>
-            {/* Authentication Section */}
-            <AuthSection />
+              {/* Authentication Section */}
+              <AuthSection />
+            </Group>
           </Group>
         </Container>
       </AppShell.Header>
@@ -49,7 +54,6 @@ const ResponsiveAppBar = ({ children }: { children: React.ReactNode }) => {
         <MobileNavigation onCloseMenu={() => setOpened(false)} />
       </AppShell.Navbar>
       <AppShell.Main>{children}</AppShell.Main>
-
       {/* Overlay to allow clicking outside navbar to close it */}
       {opened && (
         <div

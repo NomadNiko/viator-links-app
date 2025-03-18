@@ -2,28 +2,44 @@ import { Avatar } from "@/components/mantine/data/Avatar";
 import { User } from "@/services/api/types/user";
 import { useTranslation } from "@/services/i18n/client";
 import UserActions from "./UserActions";
+
 interface UserTableRowProps {
   user: User;
 }
+
 function UserTableRow({ user }: UserTableRowProps) {
   const { t: tRoles } = useTranslation("admin-panel-roles");
+
+  // Function to obfuscate user ID - show only last 8 characters
+  const obfuscateUserId = (id: string) => {
+    if (!id) return "";
+    return id.length > 8 ? `•••${id.slice(-8)}` : id;
+  };
+
   return (
     <>
-      <td style={{ width: 50 }}>
+      <td style={{ width: 50, textAlign: "center" }}>
         <Avatar
           alt={user?.firstName + " " + user?.lastName}
           src={user?.photo?.path}
           size="md"
         />
       </td>
-      <td style={{ width: 100 }}>{user?.id}</td>
+      <td style={{ width: 120, textAlign: "center" }}>
+        {obfuscateUserId(user?.id)}
+      </td>
       <td style={{ width: 200 }}>
         {user?.firstName} {user?.lastName}
       </td>
       <td>{user?.email}</td>
-      <td style={{ width: 80 }}>{tRoles(`role.${user?.role?.id}`)}</td>
-      <td style={{ width: 130 }}>{user && <UserActions user={user} />}</td>
+      <td style={{ width: 80, textAlign: "center" }}>
+        {tRoles(`role.${user?.role?.id}`)}
+      </td>
+      <td style={{ width: 130, textAlign: "center" }}>
+        {user && <UserActions user={user} />}
+      </td>
     </>
   );
 }
+
 export default UserTableRow;

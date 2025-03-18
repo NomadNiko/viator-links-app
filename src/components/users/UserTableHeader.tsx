@@ -3,6 +3,7 @@ import { SortEnum } from "@/services/api/types/sort-type";
 import { User } from "@/services/api/types/user";
 import { useTranslation } from "@/services/i18n/client";
 import TableSortCell from "./TableSortCell";
+
 interface UserTableHeaderProps {
   orderBy: keyof User;
   order: SortEnum;
@@ -12,6 +13,7 @@ interface UserTableHeaderProps {
   ) => void;
   isFetchingNextPage: boolean;
 }
+
 function UserTableHeader({
   orderBy,
   order,
@@ -22,9 +24,9 @@ function UserTableHeader({
   return (
     <>
       <tr>
-        <th style={{ width: 50 }}></th>
+        <th style={{ width: 50, textAlign: "center" }}></th>
         <TableSortCell<User>
-          width={100}
+          width={120}
           orderBy={orderBy}
           order={order}
           column="id"
@@ -43,10 +45,10 @@ function UserTableHeader({
         >
           {tUsers("admin-panel-users:table.column3")}
         </TableSortCell>
-        <th style={{ width: 80 }}>
+        <th style={{ width: 80, textAlign: "center" }}>
           {tUsers("admin-panel-users:table.column4")}
         </th>
-        <th style={{ width: 130 }}></th>
+        <th style={{ width: 130, textAlign: "center" }}></th>
       </tr>
       {isFetchingNextPage && (
         <tr>
@@ -58,4 +60,5 @@ function UserTableHeader({
     </>
   );
 }
+
 export default UserTableHeader;

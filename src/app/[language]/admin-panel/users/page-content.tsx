@@ -83,7 +83,9 @@ function Users() {
   }, [data]);
 
   return (
-    <Container size="xl">
+    <Container size="md">
+      {" "}
+      {/* Changed from "xl" to "md" to make it about 1/3 smaller */}
       <Grid pt="md">
         {/* Header with title and actions */}
         <Grid.Col span={12}>
@@ -103,7 +105,6 @@ function Users() {
             </Group>
           </Group>
         </Grid.Col>
-
         {/* Users table */}
         <Grid.Col span={12} mb="sm">
           <UsersTable
