@@ -16,7 +16,6 @@ import { Container } from "@/components/mantine/layout/Container";
 import { Box, Divider, Stack, Text, Anchor } from "@mantine/core";
 import Link from "@/components/link";
 import { isGoogleAuthEnabled } from "@/services/social-auth/google/google-config";
-import { isFacebookAuthEnabled } from "@/services/social-auth/facebook/facebook-config";
 import SocialAuth from "@/services/social-auth/social-auth";
 
 type SignInFormData = {
@@ -127,7 +126,7 @@ function SignIn() {
                 </Button>
               )}
             </Box>
-            {[isGoogleAuthEnabled, isFacebookAuthEnabled].some(Boolean) && (
+            {[isGoogleAuthEnabled].some(Boolean) && (
               <>
                 <Divider label={t("sign-in:or")} labelPosition="center" />
                 <SocialAuth />

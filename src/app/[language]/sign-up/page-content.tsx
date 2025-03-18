@@ -9,10 +9,9 @@ import {
 import useAuthActions from "@/services/auth/use-auth-actions";
 import useAuthTokens from "@/services/auth/use-auth-tokens";
 import { Container } from "@/components/mantine/layout/Container";
-import { Stack, Box, Divider, Anchor } from "@mantine/core";
+import { Stack, Box, Divider } from "@mantine/core";
 import { Typography } from "@/components/mantine/core/Typography";
 import { FormTextInput } from "@/components/mantine/form/TextInput";
-import FormCheckboxInput from "@/components/form/checkbox/form-checkbox";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Link from "@/components/link";
@@ -20,7 +19,6 @@ import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { useTranslation } from "@/services/i18n/client";
 import SocialAuth from "@/services/social-auth/social-auth";
 import { isGoogleAuthEnabled } from "@/services/social-auth/google/google-config";
-import { isFacebookAuthEnabled } from "@/services/social-auth/facebook/facebook-config";
 
 type TPolicy = {
   id: string;
@@ -76,9 +74,6 @@ function Form() {
   const fetchAuthSignUp = useAuthSignUpService();
   const { t } = useTranslation("sign-up");
   const validationSchema = useValidationSchema();
-  const policyOptions = [
-    { id: "policy", name: t("sign-up:inputs.policy.agreement") },
-  ];
   const methods = useForm<SignUpFormData>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -151,22 +146,6 @@ function Form() {
               type="password"
               testId="password"
             />
-            <FormCheckboxInput
-              name="policy"
-              label=""
-              testId="privacy"
-              options={policyOptions}
-              keyValue="id"
-              keyExtractor={(option) => option.id.toString()}
-              renderOption={(option) => (
-                <span>
-                  {option.name}
-                  <Anchor href="/privacy-policy" target="_blank">
-                    {t("sign-up:inputs.policy.label")}
-                  </Anchor>
-                </span>
-              )}
-            />
             <Box>
               <FormActions />
               <Box ml="xs" style={{ display: "inline-block" }}>
@@ -181,7 +160,7 @@ function Form() {
                 </Button>
               </Box>
             </Box>
-            {[isGoogleAuthEnabled, isFacebookAuthEnabled].some(Boolean) && (
+            {[isGoogleAuthEnabled].some(Boolean) && (
               <>
                 <Divider label={t("sign-up:or")} labelPosition="center" />
                 <SocialAuth />
