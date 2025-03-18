@@ -8,9 +8,11 @@ import {
 } from "./confirm-dialog-context";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "@/services/i18n/client";
+
 function ConfirmDialogProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation("confirm-dialog");
+
   const defaultConfirmDialogInfo = useMemo<ConfirmDialogOptions>(
     () => ({
       title: t("title"),
@@ -20,20 +22,26 @@ function ConfirmDialogProvider({ children }: { children: React.ReactNode }) {
     }),
     [t]
   );
+
   const [confirmDialogInfo, setConfirmDialogInfo] =
     useState<ConfirmDialogOptions>(defaultConfirmDialogInfo);
+
   const resolveRef = useRef<(value: boolean) => void>(undefined);
+
   const handleClose = () => {
     setIsOpen(false);
   };
+
   const onCancel = () => {
     setIsOpen(false);
     resolveRef.current?.(false);
   };
+
   const onSuccess = () => {
     setIsOpen(false);
     resolveRef.current?.(true);
   };
+
   const confirmDialog = useCallback(
     (options: Partial<ConfirmDialogOptions> = {}) => {
       return new Promise<boolean>((resolve) => {
@@ -47,12 +55,14 @@ function ConfirmDialogProvider({ children }: { children: React.ReactNode }) {
     },
     [defaultConfirmDialogInfo]
   );
+
   const contextActions = useMemo(
     () => ({
       confirmDialog,
     }),
     [confirmDialog]
   );
+
   return (
     <>
       <ConfirmDialogActionsContext.Provider value={contextActions}>
@@ -78,4 +88,5 @@ function ConfirmDialogProvider({ children }: { children: React.ReactNode }) {
     </>
   );
 }
+
 export default ConfirmDialogProvider;

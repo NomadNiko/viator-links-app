@@ -2,19 +2,17 @@
 import { RoleEnum } from "@/services/api/types/role";
 import withPageRequiredAuth from "@/services/auth/with-page-required-auth";
 import { useTranslation } from "@/services/i18n/client";
-import { Container } from "@mantine/core";
-import { Stack } from "@mantine/core";
-import { Typography } from "@/components/mantine/core/Typography";
+import { Container, Stack, Title, Text } from "@mantine/core";
 
 function AdminPanel() {
   const { t } = useTranslation("admin-panel-home");
   return (
     <Container size="md">
       <Stack gap="md" pt="md">
-        <Typography variant="h3" data-testid="home-title">
+        <Title order={3} data-testid="home-title">
           {t("title")}
-        </Typography>
-        <Typography>{t("description")}</Typography>
+        </Title>
+        <Text>{t("description")}</Text>
       </Stack>
     </Container>
   );

@@ -1,8 +1,7 @@
 "use client";
 import { useForm, FormProvider, useFormState } from "react-hook-form";
 import { Container } from "@mantine/core";
-import { Stack, Box } from "@mantine/core";
-import { Typography } from "@/components/mantine/core/Typography";
+import { Stack, Box, Title } from "@mantine/core";
 import { FormTextInput } from "@/components/mantine/form/TextInput";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -32,6 +31,7 @@ type CreateFormData = {
 
 const useValidationSchema = () => {
   const { t } = useTranslation("admin-panel-users-create");
+
   return yup.object().shape({
     email: yup
       .string()
@@ -82,6 +82,7 @@ function CreateUserFormActions() {
   const { t } = useTranslation("admin-panel-users-create");
   const { isSubmitting, isDirty } = useFormState();
   useLeavePage(isDirty);
+
   return (
     <Button type="submit" disabled={isSubmitting}>
       {t("admin-panel-users-create:actions.submit")}
@@ -95,6 +96,7 @@ function FormCreateUser() {
   const { t } = useTranslation("admin-panel-users-create");
   const validationSchema = useValidationSchema();
   const { enqueueSnackbar } = useSnackbar();
+
   const methods = useForm<CreateFormData>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -109,9 +111,12 @@ function FormCreateUser() {
       photo: undefined,
     },
   });
+
   const { handleSubmit, setError } = methods;
+
   const onSubmit = handleSubmit(async (formData) => {
     const { data, status } = await fetchPostUser(formData);
+
     if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
       (Object.keys(data.errors) as Array<keyof CreateFormData>).forEach(
         (key) => {
@@ -125,6 +130,7 @@ function FormCreateUser() {
       );
       return;
     }
+
     if (status === HTTP_CODES_ENUM.CREATED) {
       enqueueSnackbar(t("admin-panel-users-create:alerts.user.success"), {
         variant: "success",
@@ -151,9 +157,7 @@ function FormCreateUser() {
       <Container size="xs">
         <form onSubmit={onSubmit} autoComplete="create-new-user">
           <Stack gap="md" py="md">
-            <Typography variant="h6">
-              {t("admin-panel-users-create:title")}
-            </Typography>
+            <Title order={6}>{t("admin-panel-users-create:title")}</Title>
             <FormAvatarInput<CreateFormData> name="photo" testId="photo" />
             <FormTextInput<CreateFormData>
               name="email"

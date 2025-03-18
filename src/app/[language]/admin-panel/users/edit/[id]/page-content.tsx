@@ -1,8 +1,8 @@
+// src/app/[language]/admin-panel/users/edit/[id]/page-content.tsx
 "use client";
 import { useForm, FormProvider, useFormState } from "react-hook-form";
 import { Container } from "@mantine/core";
-import { Stack, Box } from "@mantine/core";
-import { Typography } from "@/components/mantine/core/Typography";
+import { Stack, Box, Title } from "@mantine/core";
 import { FormTextInput } from "@/components/mantine/form/TextInput";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -39,6 +39,7 @@ type ChangeUserPasswordFormData = {
 
 const useValidationEditUserSchema = () => {
   const { t } = useTranslation("admin-panel-users-edit");
+
   return yup.object().shape({
     email: yup
       .string()
@@ -68,6 +69,7 @@ const useValidationEditUserSchema = () => {
 
 const useValidationChangePasswordSchema = () => {
   const { t } = useTranslation("admin-panel-users-edit");
+
   return yup.object().shape({
     password: yup
       .string()
@@ -93,6 +95,7 @@ function EditUserFormActions() {
   const { t } = useTranslation("admin-panel-users-edit");
   const { isSubmitting, isDirty } = useFormState();
   useLeavePage(isDirty);
+
   return (
     <Button type="submit" disabled={isSubmitting}>
       {t("admin-panel-users-edit:actions.submit")}
@@ -104,6 +107,7 @@ function ChangePasswordUserFormActions() {
   const { t } = useTranslation("admin-panel-users-edit");
   const { isSubmitting, isDirty } = useFormState();
   useLeavePage(isDirty);
+
   return (
     <Button type="submit" disabled={isSubmitting}>
       {t("admin-panel-users-edit:actions.submit")}
@@ -142,6 +146,7 @@ function FormEditUser() {
         email: isEmailDirty ? formData.email : undefined,
       },
     });
+
     if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
       (Object.keys(data.errors) as Array<keyof EditUserFormData>).forEach(
         (key) => {
@@ -155,6 +160,7 @@ function FormEditUser() {
       );
       return;
     }
+
     if (status === HTTP_CODES_ENUM.OK) {
       reset(formData);
       enqueueSnackbar(t("admin-panel-users-edit:alerts.user.success"), {
@@ -166,6 +172,7 @@ function FormEditUser() {
   useEffect(() => {
     const getInitialDataForEdit = async () => {
       const { status, data: user } = await fetchGetUser({ id: userId });
+
       if (status === HTTP_CODES_ENUM.OK) {
         reset({
           email: user?.email ?? "",
@@ -178,6 +185,7 @@ function FormEditUser() {
         });
       }
     };
+
     getInitialDataForEdit();
   }, [userId, reset, fetchGetUser]);
 
@@ -197,9 +205,7 @@ function FormEditUser() {
       <Container size="xs">
         <form onSubmit={onSubmit}>
           <Stack gap="md" mb="md" mt="md">
-            <Typography variant="h6">
-              {t("admin-panel-users-edit:title1")}
-            </Typography>
+            <Title order={6}>{t("admin-panel-users-edit:title1")}</Title>
             <FormAvatarInput<EditUserFormData> name="photo" testId="photo" />
             <FormTextInput<EditUserFormData>
               name="email"
@@ -265,6 +271,7 @@ function FormChangePasswordUser() {
       id: userId,
       data: formData,
     });
+
     if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
       (
         Object.keys(data.errors) as Array<keyof ChangeUserPasswordFormData>
@@ -278,6 +285,7 @@ function FormChangePasswordUser() {
       });
       return;
     }
+
     if (status === HTTP_CODES_ENUM.OK) {
       reset();
       enqueueSnackbar(t("admin-panel-users-edit:alerts.password.success"), {
@@ -291,9 +299,7 @@ function FormChangePasswordUser() {
       <Container size="xs">
         <form onSubmit={onSubmit}>
           <Stack gap="md" mb="md" mt="md">
-            <Typography variant="h6">
-              {t("admin-panel-users-edit:title2")}
-            </Typography>
+            <Title order={6}>{t("admin-panel-users-edit:title2")}</Title>
             <FormTextInput<ChangeUserPasswordFormData>
               name="password"
               type="password"

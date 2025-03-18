@@ -22,6 +22,7 @@ export type EditProfileBasicInfoFormData = {
 
 const useValidationBasicInfoSchema = () => {
   const { t } = useTranslation("profile");
+
   return yup.object().shape({
     firstName: yup
       .string()
@@ -39,6 +40,7 @@ export function BasicInfoForm() {
   const { t } = useTranslation("profile");
   const validationSchema = useValidationBasicInfoSchema();
   const { enqueueSnackbar } = useSnackbar();
+
   const methods = useForm<EditProfileBasicInfoFormData>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -47,9 +49,12 @@ export function BasicInfoForm() {
       photo: undefined,
     },
   });
+
   const { handleSubmit, setError, reset } = methods;
+
   const onSubmit = handleSubmit(async (formData) => {
     const { data, status } = await fetchAuthPatchMe(formData);
+
     if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
       (
         Object.keys(data.errors) as Array<keyof EditProfileBasicInfoFormData>
@@ -63,6 +68,7 @@ export function BasicInfoForm() {
       });
       return;
     }
+
     if (status === HTTP_CODES_ENUM.OK) {
       setUser(data);
       enqueueSnackbar(t("profile:alerts.profile.success"), {

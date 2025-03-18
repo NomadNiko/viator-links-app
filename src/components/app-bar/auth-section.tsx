@@ -1,20 +1,22 @@
 "use client";
 import { useState } from "react";
 import { useTranslation } from "@/services/i18n/client";
-import { Box, Avatar, Menu, Button, Group, Loader } from "@mantine/core";
-import { Text } from "@/components/mantine/core/Typography";
+import { Box, Avatar, Menu, Button, Group, Loader, Text } from "@mantine/core";
 import Link from "@/components/link";
 import useAuth from "@/services/auth/use-auth";
 import useAuthActions from "@/services/auth/use-auth-actions";
 import { IS_SIGN_UP_ENABLED } from "@/services/auth/config";
+
 const AuthSection = () => {
   const { t } = useTranslation("common");
   const { user, isLoaded } = useAuth();
   const { logOut } = useAuthActions();
   const [menuOpened, setMenuOpened] = useState(false);
+
   if (!isLoaded) {
     return <Loader color="inherit" />;
   }
+
   if (user) {
     return (
       <Box>
@@ -50,6 +52,7 @@ const AuthSection = () => {
       </Box>
     );
   }
+
   // Guest user - show login/signup buttons
   return (
     <Box style={{ display: "flex" }}>
@@ -66,4 +69,5 @@ const AuthSection = () => {
     </Box>
   );
 };
+
 export default AuthSection;

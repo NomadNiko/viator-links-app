@@ -9,8 +9,7 @@ import {
 import useAuthActions from "@/services/auth/use-auth-actions";
 import useAuthTokens from "@/services/auth/use-auth-tokens";
 import { Container } from "@mantine/core";
-import { Stack, Box, Divider } from "@mantine/core";
-import { Typography } from "@/components/mantine/core/Typography";
+import { Stack, Box, Divider, Title } from "@mantine/core";
 import { FormTextInput } from "@/components/mantine/form/TextInput";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -35,6 +34,7 @@ type SignUpFormData = {
 
 const useValidationSchema = () => {
   const { t } = useTranslation("sign-up");
+
   return yup.object().shape({
     firstName: yup
       .string()
@@ -60,6 +60,7 @@ const useValidationSchema = () => {
 function FormActions() {
   const { t } = useTranslation("sign-up");
   const { isSubmitting } = useFormState();
+
   return (
     <Button type="submit" disabled={isSubmitting} data-testid="sign-up-submit">
       {t("sign-up:actions.submit")}
@@ -74,6 +75,7 @@ function Form() {
   const fetchAuthSignUp = useAuthSignUpService();
   const { t } = useTranslation("sign-up");
   const validationSchema = useValidationSchema();
+
   const methods = useForm<SignUpFormData>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -84,10 +86,13 @@ function Form() {
       policy: [],
     },
   });
+
   const { handleSubmit, setError } = methods;
+
   const onSubmit = handleSubmit(async (formData) => {
     const { data: dataSignUp, status: statusSignUp } =
       await fetchAuthSignUp(formData);
+
     if (statusSignUp === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
       (Object.keys(dataSignUp.errors) as Array<keyof SignUpFormData>).forEach(
         (key) => {
@@ -101,10 +106,12 @@ function Form() {
       );
       return;
     }
+
     const { data: dataSignIn, status: statusSignIn } = await fetchAuthLogin({
       email: formData.email,
       password: formData.password,
     });
+
     if (statusSignIn === HTTP_CODES_ENUM.OK) {
       setTokensInfo({
         token: dataSignIn.token,
@@ -120,7 +127,7 @@ function Form() {
       <Container size="xs">
         <form onSubmit={onSubmit}>
           <Stack gap="md" mb="md" mt="md">
-            <Typography variant="h6">{t("sign-up:title")}</Typography>
+            <Title order={6}>{t("sign-up:title")}</Title>
             <FormTextInput<SignUpFormData>
               name="firstName"
               label={t("sign-up:inputs.firstName.label")}

@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { getServerTranslation } from "@/services/i18n";
-import { Container } from "@mantine/core";
-import { Typography } from "@/components/mantine/core/Typography";
-import { Text, Anchor } from "@mantine/core";
+import { Container, Text, Anchor, Title } from "@mantine/core";
 import { COMPANY_EMAIL } from "@/config/constants";
 
 type Props = {
@@ -22,14 +20,9 @@ async function PrivacyPolicy(props: Props) {
   const { t } = await getServerTranslation(params.language, "privacy-policy");
   return (
     <Container size="md" py="xl">
-      <Typography
-        variant="h2"
-        data-testid="privacy-policy-title"
-        gutterBottom
-        fw="bold"
-      >
+      <Title order={2} data-testid="privacy-policy-title" mb="md" fw="bold">
         {t("title")}
-      </Typography>
+      </Title>
       <Text mb="md">{t("lastUpdated")}</Text>
       <Text mb="md" data-testid="privacy-policy-description">
         {t("description1")}

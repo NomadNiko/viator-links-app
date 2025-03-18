@@ -2,9 +2,8 @@
 import { RoleEnum } from "@/services/api/types/role";
 import withPageRequiredAuth from "@/services/auth/with-page-required-auth";
 import { useTranslation } from "@/services/i18n/client";
-import { Container } from "@mantine/core";
+import { Container, Title } from "@mantine/core";
 import { Grid, Group } from "@mantine/core";
-import { Typography } from "@/components/mantine/core/Typography";
 import { useCallback, useMemo, useState } from "react";
 import { useGetUsersQuery } from "./queries/queries";
 import removeDuplicatesFromArrayObjects from "@/services/helpers/remove-duplicates-from-array-of-objects";
@@ -90,9 +89,7 @@ function Users() {
         {/* Header with title and actions */}
         <Grid.Col span={12}>
           <Group justify="space-between">
-            <Typography variant="h3">
-              {tUsers("admin-panel-users:title")}
-            </Typography>
+            <Title order={3}>{tUsers("admin-panel-users:title")}</Title>
             <Group>
               <UserFilter />
               <Button

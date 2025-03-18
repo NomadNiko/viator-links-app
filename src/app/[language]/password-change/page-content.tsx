@@ -4,8 +4,7 @@ import withPageRequiredGuest from "@/services/auth/with-page-required-guest";
 import { useForm, FormProvider, useFormState } from "react-hook-form";
 import { useAuthResetPasswordService } from "@/services/api/services/auth";
 import { Container } from "@mantine/core";
-import { Stack, Alert } from "@mantine/core";
-import { Typography } from "@/components/mantine/core/Typography";
+import { Stack, Alert, Title, Text } from "@mantine/core";
 import { FormTextInput } from "@/components/mantine/form/TextInput";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -23,6 +22,7 @@ type PasswordChangeFormData = {
 
 const useValidationSchema = () => {
   const { t } = useTranslation("password-change");
+
   return yup.object().shape({
     password: yup
       .string()
@@ -43,6 +43,7 @@ const useValidationSchema = () => {
 function FormActions() {
   const { t } = useTranslation("password-change");
   const { isSubmitting } = useFormState();
+
   return (
     <Button type="submit" disabled={isSubmitting} data-testid="set-password">
       {t("password-change:actions.submit")}
@@ -53,6 +54,7 @@ function FormActions() {
 function ExpiresAlert() {
   const { t } = useTranslation("password-change");
   const [currentTime, setCurrentTime] = useState(() => Date.now());
+
   const expires = useMemo(() => {
     const params = new URLSearchParams(window.location.search);
     return Number(params.get("expires"));
@@ -66,6 +68,7 @@ function ExpiresAlert() {
         clearInterval(interval);
       }
     }, 1000);
+
     return () => clearInterval(interval);
   }, [expires]);
 
@@ -137,7 +140,7 @@ function Form() {
       <Container size="xs">
         <form onSubmit={onSubmit}>
           <Stack gap="md" mb="md" mt="lg">
-            <Typography variant="h6">{t("password-change:title")}</Typography>
+            <Title order={6}>{t("password-change:title")}</Title>
             <ExpiresAlert />
             <FormTextInput<PasswordChangeFormData>
               name="password"
