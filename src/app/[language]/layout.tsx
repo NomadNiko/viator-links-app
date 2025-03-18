@@ -1,4 +1,3 @@
-// app/[language]/layout.tsx
 import { dir } from "i18next";
 import { languages } from "@/services/i18n/config";
 import type { Metadata } from "next";
@@ -57,8 +56,7 @@ export default async function RootLayout(props: {
                     <FacebookAuthProvider>
                       <LeavePageProvider>
                         <NotificationsProvider>
-                          <ResponsiveAppBar />
-                          {children}
+                          <ResponsiveAppBar>{children}</ResponsiveAppBar>
                         </NotificationsProvider>
                       </LeavePageProvider>
                     </FacebookAuthProvider>
