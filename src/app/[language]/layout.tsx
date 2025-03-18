@@ -13,6 +13,7 @@ import AuthProvider from "@/services/auth/auth-provider";
 import ResponsiveAppBar from "@/components/app-bar";
 import { MantineProviders } from "@/components/theme/mantine-provider";
 import { NotificationsProvider } from "@/components/mantine/feedback/notification-provider";
+import { oxanium } from "@/config/fonts";
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
 import "../globals.css";
@@ -43,7 +44,12 @@ export default async function RootLayout(props: {
   const { children } = props;
 
   return (
-    <html lang={language} dir={dir(language)} suppressHydrationWarning>
+    <html
+      lang={language}
+      dir={dir(language)}
+      className={oxanium.variable}
+      suppressHydrationWarning
+    >
       <body suppressHydrationWarning>
         <QueryClientProvider client={queryClient}>
           <ReactQueryDevtools initialIsOpen={false} />

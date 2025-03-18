@@ -1,1 +1,7 @@
-/* Your global CSS here */
+html {
+  font-family: var(--font-oxanium), system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font-oxanium), system-ui, sans-serif;
+}

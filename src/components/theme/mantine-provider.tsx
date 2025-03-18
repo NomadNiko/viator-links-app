@@ -1,5 +1,7 @@
 import { MantineProvider, createTheme, ColorSchemeScript } from "@mantine/core";
+import { oxanium } from "@/config/fonts";
 import "@mantine/core/styles.css";
+
 const theme = createTheme({
   primaryColor: "blue",
   colors: {
@@ -16,7 +18,7 @@ const theme = createTheme({
       "#002766",
     ],
   },
-  fontFamily: "system-ui, sans-serif",
+  fontFamily: `${oxanium.style.fontFamily}, system-ui, sans-serif`,
   components: {
     Button: {
       defaultProps: {
@@ -25,6 +27,7 @@ const theme = createTheme({
     },
   },
 });
+
 export function MantineProviders({ children }: { children: React.ReactNode }) {
   return (
     <>
@@ -35,6 +38,7 @@ export function MantineProviders({ children }: { children: React.ReactNode }) {
     </>
   );
 }
+
 // Replace InitColorSchemeScript with this component
 export function InitColorSchemeScript() {
   return <ColorSchemeScript defaultColorScheme="light" />;

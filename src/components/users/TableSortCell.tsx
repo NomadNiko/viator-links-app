@@ -36,7 +36,7 @@ function TableSortCell<T>({
   const theme = useMantineTheme();
 
   return (
-    <th style={{ width }}>
+    <th style={{ width, textAlign: "left" }}>
       <UnstyledButton
         onClick={(event) => handleRequestSort(event, column)}
         style={{ width: "100%", padding: `${theme.spacing.xs} 0` }}
