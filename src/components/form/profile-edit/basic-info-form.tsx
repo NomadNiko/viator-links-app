@@ -1,8 +1,7 @@
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, Controller } from "react-hook-form";
 import { useAuthPatchMeService } from "@/services/api/services/auth";
 import useAuthActions from "@/services/auth/use-auth-actions";
-import { Container, Stack, Title, Box } from "@mantine/core";
-import { FormTextInput } from "@/components/mantine/form/TextInput";
+import { Container, Stack, Title, Box, TextInput } from "@mantine/core";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect } from "react";
@@ -22,7 +21,6 @@ export type EditProfileBasicInfoFormData = {
 
 const useValidationBasicInfoSchema = () => {
   const { t } = useTranslation("profile");
-
   return yup.object().shape({
     firstName: yup
       .string()
@@ -40,7 +38,6 @@ export function BasicInfoForm() {
   const { t } = useTranslation("profile");
   const validationSchema = useValidationBasicInfoSchema();
   const { enqueueSnackbar } = useSnackbar();
-
   const methods = useForm<EditProfileBasicInfoFormData>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -49,12 +46,10 @@ export function BasicInfoForm() {
       photo: undefined,
     },
   });
-
-  const { handleSubmit, setError, reset } = methods;
+  const { handleSubmit, setError, reset, control } = methods;
 
   const onSubmit = handleSubmit(async (formData) => {
     const { data, status } = await fetchAuthPatchMe(formData);
-
     if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
       (
         Object.keys(data.errors) as Array<keyof EditProfileBasicInfoFormData>
@@ -68,7 +63,6 @@ export function BasicInfoForm() {
       });
       return;
     }
-
     if (status === HTTP_CODES_ENUM.OK) {
       setUser(data);
       enqueueSnackbar(t("profile:alerts.profile.success"), {
@@ -97,16 +91,33 @@ export function BasicInfoForm() {
                 testId="photo"
               />
             </Box>
-            <FormTextInput<EditProfileBasicInfoFormData>
+
+            <Controller
               name="firstName"
-              label={t("profile:inputs.firstName.label")}
-              testId="first-name"
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextInput
+                  {...field}
+                  label={t("profile:inputs.firstName.label")}
+                  error={fieldState.error?.message}
+                  data-testid="first-name"
+                />
+              )}
             />
-            <FormTextInput<EditProfileBasicInfoFormData>
+
+            <Controller
               name="lastName"
-              label={t("profile:inputs.lastName.label")}
-              testId="last-name"
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextInput
+                  {...field}
+                  label={t("profile:inputs.lastName.label")}
+                  error={fieldState.error?.message}
+                  data-testid="last-name"
+                />
+              )}
             />
+
             <Box>
               <FormActions
                 submitLabel={t("profile:actions.submit")}

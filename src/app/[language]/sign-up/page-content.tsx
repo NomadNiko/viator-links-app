@@ -1,7 +1,12 @@
 "use client";
 import { Button } from "@/components/mantine/core/Button";
 import withPageRequiredGuest from "@/services/auth/with-page-required-guest";
-import { useForm, FormProvider, useFormState } from "react-hook-form";
+import {
+  useForm,
+  FormProvider,
+  useFormState,
+  Controller,
+} from "react-hook-form";
 import {
   useAuthLoginService,
   useAuthSignUpService,
@@ -9,8 +14,7 @@ import {
 import useAuthActions from "@/services/auth/use-auth-actions";
 import useAuthTokens from "@/services/auth/use-auth-tokens";
 import { Container } from "@mantine/core";
-import { Stack, Box, Divider, Title } from "@mantine/core";
-import { FormTextInput } from "@/components/mantine/form/TextInput";
+import { Stack, Box, Divider, Title, TextInput } from "@mantine/core";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Link from "@/components/link";
@@ -34,7 +38,6 @@ type SignUpFormData = {
 
 const useValidationSchema = () => {
   const { t } = useTranslation("sign-up");
-
   return yup.object().shape({
     firstName: yup
       .string()
@@ -60,7 +63,6 @@ const useValidationSchema = () => {
 function FormActions() {
   const { t } = useTranslation("sign-up");
   const { isSubmitting } = useFormState();
-
   return (
     <Button type="submit" disabled={isSubmitting} data-testid="sign-up-submit">
       {t("sign-up:actions.submit")}
@@ -75,7 +77,6 @@ function Form() {
   const fetchAuthSignUp = useAuthSignUpService();
   const { t } = useTranslation("sign-up");
   const validationSchema = useValidationSchema();
-
   const methods = useForm<SignUpFormData>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -86,13 +87,11 @@ function Form() {
       policy: [],
     },
   });
-
-  const { handleSubmit, setError } = methods;
+  const { handleSubmit, setError, control } = methods;
 
   const onSubmit = handleSubmit(async (formData) => {
     const { data: dataSignUp, status: statusSignUp } =
       await fetchAuthSignUp(formData);
-
     if (statusSignUp === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
       (Object.keys(dataSignUp.errors) as Array<keyof SignUpFormData>).forEach(
         (key) => {
@@ -106,12 +105,10 @@ function Form() {
       );
       return;
     }
-
     const { data: dataSignIn, status: statusSignIn } = await fetchAuthLogin({
       email: formData.email,
       password: formData.password,
     });
-
     if (statusSignIn === HTTP_CODES_ENUM.OK) {
       setTokensInfo({
         token: dataSignIn.token,
@@ -128,31 +125,62 @@ function Form() {
         <form onSubmit={onSubmit}>
           <Stack gap="md" mb="md" mt="md">
             <Title order={6}>{t("sign-up:title")}</Title>
-            <FormTextInput<SignUpFormData>
+
+            <Controller
               name="firstName"
-              label={t("sign-up:inputs.firstName.label")}
-              type="text"
-              autoFocus
-              testId="first-name"
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextInput
+                  {...field}
+                  label={t("sign-up:inputs.firstName.label")}
+                  error={fieldState.error?.message}
+                  data-testid="first-name"
+                  autoFocus
+                />
+              )}
             />
-            <FormTextInput<SignUpFormData>
+
+            <Controller
               name="lastName"
-              label={t("sign-up:inputs.lastName.label")}
-              type="text"
-              testId="last-name"
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextInput
+                  {...field}
+                  label={t("sign-up:inputs.lastName.label")}
+                  error={fieldState.error?.message}
+                  data-testid="last-name"
+                />
+              )}
             />
-            <FormTextInput<SignUpFormData>
+
+            <Controller
               name="email"
-              label={t("sign-up:inputs.email.label")}
-              type="email"
-              testId="email"
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextInput
+                  {...field}
+                  label={t("sign-up:inputs.email.label")}
+                  type="email"
+                  error={fieldState.error?.message}
+                  data-testid="email"
+                />
+              )}
             />
-            <FormTextInput<SignUpFormData>
+
+            <Controller
               name="password"
-              label={t("sign-up:inputs.password.label")}
-              type="password"
-              testId="password"
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextInput
+                  {...field}
+                  type="password"
+                  label={t("sign-up:inputs.password.label")}
+                  error={fieldState.error?.message}
+                  data-testid="password"
+                />
+              )}
             />
+
             <Box>
               <FormActions />
               <Box ml="xs" style={{ display: "inline-block" }}>

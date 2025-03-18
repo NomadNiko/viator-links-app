@@ -1,10 +1,14 @@
 "use client";
 import { Button } from "@mantine/core";
 import withPageRequiredGuest from "@/services/auth/with-page-required-guest";
-import { useForm, FormProvider, useFormState } from "react-hook-form";
+import {
+  useForm,
+  FormProvider,
+  useFormState,
+  Controller,
+} from "react-hook-form";
 import { useAuthForgotPasswordService } from "@/services/api/services/auth";
-import { Container, Stack, Title } from "@mantine/core";
-import { FormTextInput } from "@/components/mantine/form/TextInput";
+import { Container, Stack, Title, TextInput } from "@mantine/core";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
@@ -17,7 +21,6 @@ type ForgotPasswordFormData = {
 
 const useValidationSchema = () => {
   const { t } = useTranslation("forgot-password");
-
   return yup.object().shape({
     email: yup
       .string()
@@ -29,7 +32,6 @@ const useValidationSchema = () => {
 function FormActions() {
   const { t } = useTranslation("forgot-password");
   const { isSubmitting } = useFormState();
-
   return (
     <Button type="submit" disabled={isSubmitting} data-testid="send-email">
       {t("forgot-password:actions.submit")}
@@ -42,19 +44,16 @@ function Form() {
   const fetchAuthForgotPassword = useAuthForgotPasswordService();
   const { t } = useTranslation("forgot-password");
   const validationSchema = useValidationSchema();
-
   const methods = useForm<ForgotPasswordFormData>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       email: "",
     },
   });
-
-  const { handleSubmit, setError } = methods;
+  const { handleSubmit, setError, control } = methods;
 
   const onSubmit = handleSubmit(async (formData) => {
     const { data, status } = await fetchAuthForgotPassword(formData);
-
     if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
       (Object.keys(data.errors) as Array<keyof ForgotPasswordFormData>).forEach(
         (key) => {
@@ -68,7 +67,6 @@ function Form() {
       );
       return;
     }
-
     if (status === HTTP_CODES_ENUM.NO_CONTENT) {
       enqueueSnackbar(t("forgot-password:alerts.success"), {
         variant: "success",
@@ -82,11 +80,18 @@ function Form() {
         <form onSubmit={onSubmit}>
           <Stack gap="md" mb="md" mt="lg">
             <Title order={6}>{t("forgot-password:title")}</Title>
-            <FormTextInput<ForgotPasswordFormData>
+            <Controller
               name="email"
-              label={t("forgot-password:inputs.email.label")}
-              type="email"
-              testId="email"
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextInput
+                  {...field}
+                  label={t("forgot-password:inputs.email.label")}
+                  type="email"
+                  error={fieldState.error?.message}
+                  data-testid="email"
+                />
+              )}
             />
             <FormActions />
           </Stack>

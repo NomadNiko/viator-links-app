@@ -1,9 +1,12 @@
-// src/app/[language]/admin-panel/users/edit/[id]/page-content.tsx
 "use client";
-import { useForm, FormProvider, useFormState } from "react-hook-form";
+import {
+  useForm,
+  FormProvider,
+  useFormState,
+  Controller,
+} from "react-hook-form";
 import { Container } from "@mantine/core";
-import { Stack, Box, Title } from "@mantine/core";
-import { FormTextInput } from "@/components/mantine/form/TextInput";
+import { Stack, Box, Title, TextInput, Select } from "@mantine/core";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import withPageRequiredAuth from "@/services/auth/with-page-required-auth";
@@ -20,7 +23,6 @@ import {
 } from "@/services/api/services/users";
 import { useParams } from "next/navigation";
 import { Role, RoleEnum } from "@/services/api/types/role";
-import { FormSelect } from "@/components/mantine/form/Select";
 import { Button } from "@/components/mantine/core/Button";
 import { useSnackbar } from "@/components/mantine/feedback/notification-service";
 
@@ -39,7 +41,6 @@ type ChangeUserPasswordFormData = {
 
 const useValidationEditUserSchema = () => {
   const { t } = useTranslation("admin-panel-users-edit");
-
   return yup.object().shape({
     email: yup
       .string()
@@ -69,7 +70,6 @@ const useValidationEditUserSchema = () => {
 
 const useValidationChangePasswordSchema = () => {
   const { t } = useTranslation("admin-panel-users-edit");
-
   return yup.object().shape({
     password: yup
       .string()
@@ -95,7 +95,6 @@ function EditUserFormActions() {
   const { t } = useTranslation("admin-panel-users-edit");
   const { isSubmitting, isDirty } = useFormState();
   useLeavePage(isDirty);
-
   return (
     <Button type="submit" disabled={isSubmitting}>
       {t("admin-panel-users-edit:actions.submit")}
@@ -107,7 +106,6 @@ function ChangePasswordUserFormActions() {
   const { t } = useTranslation("admin-panel-users-edit");
   const { isSubmitting, isDirty } = useFormState();
   useLeavePage(isDirty);
-
   return (
     <Button type="submit" disabled={isSubmitting}>
       {t("admin-panel-users-edit:actions.submit")}
@@ -123,7 +121,6 @@ function FormEditUser() {
   const { t } = useTranslation("admin-panel-users-edit");
   const validationSchema = useValidationEditUserSchema();
   const { enqueueSnackbar } = useSnackbar();
-
   const methods = useForm<EditUserFormData>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -134,8 +131,7 @@ function FormEditUser() {
       photo: undefined,
     },
   });
-
-  const { handleSubmit, setError, reset } = methods;
+  const { handleSubmit, setError, reset, control } = methods;
 
   const onSubmit = handleSubmit(async (formData) => {
     const isEmailDirty = methods.getFieldState("email").isDirty;
@@ -146,7 +142,6 @@ function FormEditUser() {
         email: isEmailDirty ? formData.email : undefined,
       },
     });
-
     if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
       (Object.keys(data.errors) as Array<keyof EditUserFormData>).forEach(
         (key) => {
@@ -160,7 +155,6 @@ function FormEditUser() {
       );
       return;
     }
-
     if (status === HTTP_CODES_ENUM.OK) {
       reset(formData);
       enqueueSnackbar(t("admin-panel-users-edit:alerts.user.success"), {
@@ -172,7 +166,6 @@ function FormEditUser() {
   useEffect(() => {
     const getInitialDataForEdit = async () => {
       const { status, data: user } = await fetchGetUser({ id: userId });
-
       if (status === HTTP_CODES_ENUM.OK) {
         reset({
           email: user?.email ?? "",
@@ -185,7 +178,6 @@ function FormEditUser() {
         });
       }
     };
-
     getInitialDataForEdit();
   }, [userId, reset, fetchGetUser]);
 
@@ -207,27 +199,62 @@ function FormEditUser() {
           <Stack gap="md" mb="md" mt="md">
             <Title order={6}>{t("admin-panel-users-edit:title1")}</Title>
             <FormAvatarInput<EditUserFormData> name="photo" testId="photo" />
-            <FormTextInput<EditUserFormData>
+
+            <Controller
               name="email"
-              testId="email"
-              label={t("admin-panel-users-edit:inputs.email.label")}
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextInput
+                  {...field}
+                  label={t("admin-panel-users-edit:inputs.email.label")}
+                  error={fieldState.error?.message}
+                  data-testid="email"
+                />
+              )}
             />
-            <FormTextInput<EditUserFormData>
+
+            <Controller
               name="firstName"
-              testId="first-name"
-              label={t("admin-panel-users-edit:inputs.firstName.label")}
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextInput
+                  {...field}
+                  label={t("admin-panel-users-edit:inputs.firstName.label")}
+                  error={fieldState.error?.message}
+                  data-testid="first-name"
+                />
+              )}
             />
-            <FormTextInput<EditUserFormData>
+
+            <Controller
               name="lastName"
-              testId="last-name"
-              label={t("admin-panel-users-edit:inputs.lastName.label")}
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextInput
+                  {...field}
+                  label={t("admin-panel-users-edit:inputs.lastName.label")}
+                  error={fieldState.error?.message}
+                  data-testid="last-name"
+                />
+              )}
             />
-            <FormSelect<EditUserFormData>
+
+            <Controller
               name="role"
-              testId="role"
-              label={t("admin-panel-users-edit:inputs.role.label")}
-              options={roleOptions}
+              control={control}
+              render={({ field, fieldState }) => (
+                <Select
+                  {...field}
+                  label={t("admin-panel-users-edit:inputs.role.label")}
+                  data={roleOptions}
+                  error={fieldState.error?.message}
+                  data-testid="role"
+                  value={field.value?.id.toString()}
+                  onChange={(value) => field.onChange({ id: Number(value) })}
+                />
+              )}
             />
+
             <Box>
               <EditUserFormActions />
               <Box ml="xs" style={{ display: "inline-block" }}>
@@ -255,7 +282,6 @@ function FormChangePasswordUser() {
   const { t } = useTranslation("admin-panel-users-edit");
   const validationSchema = useValidationChangePasswordSchema();
   const { enqueueSnackbar } = useSnackbar();
-
   const methods = useForm<ChangeUserPasswordFormData>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -263,15 +289,13 @@ function FormChangePasswordUser() {
       passwordConfirmation: "",
     },
   });
-
-  const { handleSubmit, setError, reset } = methods;
+  const { handleSubmit, setError, reset, control } = methods;
 
   const onSubmit = handleSubmit(async (formData) => {
     const { data, status } = await fetchPatchUser({
       id: userId,
       data: formData,
     });
-
     if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
       (
         Object.keys(data.errors) as Array<keyof ChangeUserPasswordFormData>
@@ -285,7 +309,6 @@ function FormChangePasswordUser() {
       });
       return;
     }
-
     if (status === HTTP_CODES_ENUM.OK) {
       reset();
       enqueueSnackbar(t("admin-panel-users-edit:alerts.password.success"), {
@@ -300,18 +323,35 @@ function FormChangePasswordUser() {
         <form onSubmit={onSubmit}>
           <Stack gap="md" mb="md" mt="md">
             <Title order={6}>{t("admin-panel-users-edit:title2")}</Title>
-            <FormTextInput<ChangeUserPasswordFormData>
+
+            <Controller
               name="password"
-              type="password"
-              label={t("admin-panel-users-edit:inputs.password.label")}
-            />
-            <FormTextInput<ChangeUserPasswordFormData>
-              name="passwordConfirmation"
-              label={t(
-                "admin-panel-users-edit:inputs.passwordConfirmation.label"
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextInput
+                  {...field}
+                  type="password"
+                  label={t("admin-panel-users-edit:inputs.password.label")}
+                  error={fieldState.error?.message}
+                />
               )}
-              type="password"
             />
+
+            <Controller
+              name="passwordConfirmation"
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextInput
+                  {...field}
+                  type="password"
+                  label={t(
+                    "admin-panel-users-edit:inputs.passwordConfirmation.label"
+                  )}
+                  error={fieldState.error?.message}
+                />
+              )}
+            />
+
             <Box>
               <ChangePasswordUserFormActions />
               <Box ml="xs" style={{ display: "inline-block" }}>

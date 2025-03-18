@@ -1,7 +1,6 @@
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, Controller } from "react-hook-form";
 import { useAuthPatchMeService } from "@/services/api/services/auth";
-import { Container, Stack, Title, Box, Text } from "@mantine/core";
-import { FormTextInput } from "@/components/mantine/form/TextInput";
+import { Container, Stack, Title, Box, Text, TextInput } from "@mantine/core";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import useAuth from "@/services/auth/use-auth";
@@ -14,6 +13,7 @@ export type EditProfileChangeEmailFormData = {
   email: string;
   emailConfirmation: string;
 };
+
 const useValidationChangeEmailSchema = () => {
   const { t } = useTranslation("profile");
   const { user } = useAuth();
@@ -35,6 +35,7 @@ const useValidationChangeEmailSchema = () => {
       .required(t("profile:inputs.emailConfirmation.validation.required")),
   });
 };
+
 export function ChangeEmailForm() {
   const fetchAuthPatchMe = useAuthPatchMeService();
   const { enqueueSnackbar } = useSnackbar();
@@ -48,7 +49,8 @@ export function ChangeEmailForm() {
       emailConfirmation: "",
     },
   });
-  const { handleSubmit, reset, setError } = methods;
+  const { handleSubmit, reset, setError, control } = methods;
+
   const onSubmit = handleSubmit(async (formData) => {
     const { data, status } = await fetchAuthPatchMe({
       email: formData.email,
@@ -74,6 +76,7 @@ export function ChangeEmailForm() {
       });
     }
   });
+
   return (
     <FormProvider {...methods}>
       <Container size="xs">
@@ -81,18 +84,35 @@ export function ChangeEmailForm() {
           <Stack gap="md" py="md">
             <Title order={5}>{t("profile:title2")}</Title>
             <Text>{user?.email}</Text>
-            <FormTextInput<EditProfileChangeEmailFormData>
+
+            <Controller
               name="email"
-              label={t("profile:inputs.email.label")}
-              type="email"
-              testId="email"
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextInput
+                  {...field}
+                  label={t("profile:inputs.email.label")}
+                  type="email"
+                  error={fieldState.error?.message}
+                  data-testid="email"
+                />
+              )}
             />
-            <FormTextInput<EditProfileChangeEmailFormData>
+
+            <Controller
               name="emailConfirmation"
-              label={t("profile:inputs.emailConfirmation.label")}
-              type="email"
-              testId="email-confirmation"
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextInput
+                  {...field}
+                  label={t("profile:inputs.emailConfirmation.label")}
+                  type="email"
+                  error={fieldState.error?.message}
+                  data-testid="email-confirmation"
+                />
+              )}
             />
+
             <Box>
               <FormActions
                 submitLabel={t("profile:actions.submit")}

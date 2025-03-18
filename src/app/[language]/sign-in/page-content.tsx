@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useTranslation } from "@/services/i18n/client";
@@ -10,10 +10,9 @@ import useAuthTokens from "@/services/auth/use-auth-tokens";
 import withPageRequiredGuest from "@/services/auth/with-page-required-guest";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { IS_SIGN_UP_ENABLED } from "@/services/auth/config";
-import { FormTextInput } from "@/components/mantine/form/TextInput";
 import { Button } from "@/components/mantine/core/Button";
 import { Container } from "@mantine/core";
-import { Box, Divider, Stack, Text, Anchor } from "@mantine/core";
+import { Box, Divider, Stack, Text, TextInput, Anchor } from "@mantine/core";
 import Link from "@/components/link";
 import { isGoogleAuthEnabled } from "@/services/social-auth/google/google-config";
 import SocialAuth from "@/services/social-auth/social-auth";
@@ -28,7 +27,6 @@ function SignIn() {
   const { setUser } = useAuthActions();
   const { setTokensInfo } = useAuthTokens();
   const fetchAuthLogin = useAuthLoginService();
-
   const validationSchema = yup.object().shape({
     email: yup
       .string()
@@ -39,7 +37,6 @@ function SignIn() {
       .min(6, t("sign-in:inputs.password.validation.min"))
       .required(t("sign-in:inputs.password.validation.required")),
   });
-
   const methods = useForm<SignInFormData>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -47,8 +44,7 @@ function SignIn() {
       password: "",
     },
   });
-
-  const { handleSubmit, setError } = methods;
+  const { handleSubmit, setError, control } = methods;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const onSubmit = handleSubmit(async (formData) => {
@@ -89,19 +85,36 @@ function SignIn() {
             <Text size="xl" fw={600}>
               {t("sign-in:title")}
             </Text>
-            <FormTextInput<SignInFormData>
+
+            <Controller
               name="email"
-              label={t("sign-in:inputs.email.label")}
-              type="email"
-              testId="email"
-              autoFocus
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextInput
+                  {...field}
+                  label={t("sign-in:inputs.email.label")}
+                  type="email"
+                  error={fieldState.error?.message}
+                  data-testid="email"
+                  autoFocus
+                />
+              )}
             />
-            <FormTextInput<SignInFormData>
+
+            <Controller
               name="password"
-              label={t("sign-in:inputs.password.label")}
-              type="password"
-              testId="password"
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextInput
+                  {...field}
+                  type="password"
+                  label={t("sign-in:inputs.password.label")}
+                  error={fieldState.error?.message}
+                  data-testid="password"
+                />
+              )}
             />
+
             <Anchor href="/forgot-password" data-testid="forgot-password">
               {t("sign-in:actions.forgotPassword")}
             </Anchor>

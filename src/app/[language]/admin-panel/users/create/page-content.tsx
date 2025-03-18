@@ -1,8 +1,12 @@
 "use client";
-import { useForm, FormProvider, useFormState } from "react-hook-form";
+import {
+  useForm,
+  FormProvider,
+  useFormState,
+  Controller,
+} from "react-hook-form";
 import { Container } from "@mantine/core";
-import { Stack, Box, Title } from "@mantine/core";
-import { FormTextInput } from "@/components/mantine/form/TextInput";
+import { Stack, Box, Title, TextInput, Select } from "@mantine/core";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import withPageRequiredAuth from "@/services/auth/with-page-required-auth";
@@ -15,7 +19,6 @@ import { useTranslation } from "@/services/i18n/client";
 import { usePostUserService } from "@/services/api/services/users";
 import { useRouter } from "next/navigation";
 import { Role, RoleEnum } from "@/services/api/types/role";
-import { FormSelect } from "@/components/mantine/form/Select";
 import { Button } from "@/components/mantine/core/Button";
 import { useSnackbar } from "@/components/mantine/feedback/notification-service";
 
@@ -31,7 +34,6 @@ type CreateFormData = {
 
 const useValidationSchema = () => {
   const { t } = useTranslation("admin-panel-users-create");
-
   return yup.object().shape({
     email: yup
       .string()
@@ -82,7 +84,6 @@ function CreateUserFormActions() {
   const { t } = useTranslation("admin-panel-users-create");
   const { isSubmitting, isDirty } = useFormState();
   useLeavePage(isDirty);
-
   return (
     <Button type="submit" disabled={isSubmitting}>
       {t("admin-panel-users-create:actions.submit")}
@@ -96,7 +97,6 @@ function FormCreateUser() {
   const { t } = useTranslation("admin-panel-users-create");
   const validationSchema = useValidationSchema();
   const { enqueueSnackbar } = useSnackbar();
-
   const methods = useForm<CreateFormData>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -111,12 +111,10 @@ function FormCreateUser() {
       photo: undefined,
     },
   });
-
-  const { handleSubmit, setError } = methods;
+  const { handleSubmit, setError, control } = methods;
 
   const onSubmit = handleSubmit(async (formData) => {
     const { data, status } = await fetchPostUser(formData);
-
     if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
       (Object.keys(data.errors) as Array<keyof CreateFormData>).forEach(
         (key) => {
@@ -130,7 +128,6 @@ function FormCreateUser() {
       );
       return;
     }
-
     if (status === HTTP_CODES_ENUM.CREATED) {
       enqueueSnackbar(t("admin-panel-users-create:alerts.user.success"), {
         variant: "success",
@@ -159,43 +156,94 @@ function FormCreateUser() {
           <Stack gap="md" py="md">
             <Title order={6}>{t("admin-panel-users-create:title")}</Title>
             <FormAvatarInput<CreateFormData> name="photo" testId="photo" />
-            <FormTextInput<CreateFormData>
+
+            <Controller
               name="email"
-              testId="new-user-email"
-              autoComplete="new-user-email"
-              label={t("admin-panel-users-create:inputs.email.label")}
-            />
-            <FormTextInput<CreateFormData>
-              name="password"
-              type="password"
-              testId="new-user-password"
-              autoComplete="new-user-password"
-              label={t("admin-panel-users-create:inputs.password.label")}
-            />
-            <FormTextInput<CreateFormData>
-              name="passwordConfirmation"
-              testId="new-user-password-confirmation"
-              label={t(
-                "admin-panel-users-create:inputs.passwordConfirmation.label"
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextInput
+                  {...field}
+                  label={t("admin-panel-users-create:inputs.email.label")}
+                  error={fieldState.error?.message}
+                  data-testid="new-user-email"
+                  autoComplete="new-user-email"
+                />
               )}
-              type="password"
             />
-            <FormTextInput<CreateFormData>
+
+            <Controller
+              name="password"
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextInput
+                  {...field}
+                  type="password"
+                  label={t("admin-panel-users-create:inputs.password.label")}
+                  error={fieldState.error?.message}
+                  data-testid="new-user-password"
+                  autoComplete="new-user-password"
+                />
+              )}
+            />
+
+            <Controller
+              name="passwordConfirmation"
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextInput
+                  {...field}
+                  type="password"
+                  label={t(
+                    "admin-panel-users-create:inputs.passwordConfirmation.label"
+                  )}
+                  error={fieldState.error?.message}
+                  data-testid="new-user-password-confirmation"
+                />
+              )}
+            />
+
+            <Controller
               name="firstName"
-              testId="first-name"
-              label={t("admin-panel-users-create:inputs.firstName.label")}
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextInput
+                  {...field}
+                  label={t("admin-panel-users-create:inputs.firstName.label")}
+                  error={fieldState.error?.message}
+                  data-testid="first-name"
+                />
+              )}
             />
-            <FormTextInput<CreateFormData>
+
+            <Controller
               name="lastName"
-              testId="last-name"
-              label={t("admin-panel-users-create:inputs.lastName.label")}
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextInput
+                  {...field}
+                  label={t("admin-panel-users-create:inputs.lastName.label")}
+                  error={fieldState.error?.message}
+                  data-testid="last-name"
+                />
+              )}
             />
-            <FormSelect<CreateFormData>
+
+            <Controller
               name="role"
-              testId="role"
-              label={t("admin-panel-users-create:inputs.role.label")}
-              options={roleOptions}
+              control={control}
+              render={({ field, fieldState }) => (
+                <Select
+                  {...field}
+                  label={t("admin-panel-users-create:inputs.role.label")}
+                  data={roleOptions}
+                  error={fieldState.error?.message}
+                  data-testid="role"
+                  value={field.value?.id.toString()}
+                  onChange={(value) => field.onChange({ id: Number(value) })}
+                />
+              )}
             />
+
             <Box>
               <CreateUserFormActions />
               <Button

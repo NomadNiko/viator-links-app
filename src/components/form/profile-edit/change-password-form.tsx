@@ -1,7 +1,6 @@
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, Controller } from "react-hook-form";
 import { useAuthPatchMeService } from "@/services/api/services/auth";
-import { Container, Stack, Title, Box } from "@mantine/core";
-import { FormTextInput } from "@/components/mantine/form/TextInput";
+import { Container, Stack, Title, Box, TextInput } from "@mantine/core";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
@@ -14,6 +13,7 @@ export type EditProfileChangePasswordFormData = {
   password: string;
   passwordConfirmation: string;
 };
+
 const useValidationChangePasswordSchema = () => {
   const { t } = useTranslation("profile");
   return yup.object().shape({
@@ -34,6 +34,7 @@ const useValidationChangePasswordSchema = () => {
       .required(t("profile:inputs.passwordConfirmation.validation.required")),
   });
 };
+
 export function ChangePasswordForm() {
   const fetchAuthPatchMe = useAuthPatchMeService();
   const { t } = useTranslation("profile");
@@ -47,7 +48,8 @@ export function ChangePasswordForm() {
       passwordConfirmation: "",
     },
   });
-  const { handleSubmit, setError, reset } = methods;
+  const { handleSubmit, setError, reset, control } = methods;
+
   const onSubmit = handleSubmit(async (formData) => {
     const { data, status } = await fetchAuthPatchMe({
       password: formData.password,
@@ -71,30 +73,56 @@ export function ChangePasswordForm() {
       });
     }
   });
+
   return (
     <FormProvider {...methods}>
       <Container size="xs">
         <form onSubmit={onSubmit}>
           <Stack gap="md" py="md">
             <Title order={5}>{t("profile:title3")}</Title>
-            <FormTextInput<EditProfileChangePasswordFormData>
+
+            <Controller
               name="oldPassword"
-              label={t("profile:inputs.oldPassword.label")}
-              type="password"
-              testId="old-password"
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextInput
+                  {...field}
+                  type="password"
+                  label={t("profile:inputs.oldPassword.label")}
+                  error={fieldState.error?.message}
+                  data-testid="old-password"
+                />
+              )}
             />
-            <FormTextInput<EditProfileChangePasswordFormData>
+
+            <Controller
               name="password"
-              label={t("profile:inputs.password.label")}
-              type="password"
-              testId="new-password"
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextInput
+                  {...field}
+                  type="password"
+                  label={t("profile:inputs.password.label")}
+                  error={fieldState.error?.message}
+                  data-testid="new-password"
+                />
+              )}
             />
-            <FormTextInput<EditProfileChangePasswordFormData>
+
+            <Controller
               name="passwordConfirmation"
-              label={t("profile:inputs.passwordConfirmation.label")}
-              type="password"
-              testId="password-confirmation"
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextInput
+                  {...field}
+                  type="password"
+                  label={t("profile:inputs.passwordConfirmation.label")}
+                  error={fieldState.error?.message}
+                  data-testid="password-confirmation"
+                />
+              )}
             />
+
             <Box>
               <FormActions
                 submitLabel={t("profile:actions.submit")}

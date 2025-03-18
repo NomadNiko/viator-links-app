@@ -7,9 +7,7 @@ import { Grid, Group } from "@mantine/core";
 import { useCallback, useMemo, useState } from "react";
 import { useGetUsersQuery } from "./queries/queries";
 import removeDuplicatesFromArrayObjects from "@/services/helpers/remove-duplicates-from-array-of-objects";
-import UserFilter from "./user-filter";
 import { useRouter, useSearchParams } from "next/navigation";
-import { UserFilterType } from "./user-filter-types";
 import { SortEnum } from "@/services/api/types/sort-type";
 import { User } from "@/services/api/types/user";
 import { Button } from "@/components/mantine/core/Button";
@@ -55,18 +53,9 @@ function Users() {
     router.push(window.location.pathname + "?" + searchParams.toString());
   };
 
-  // Extract filter from URL
-  const filter = useMemo(() => {
-    const searchParamsFilter = searchParams.get("filter");
-    if (searchParamsFilter) {
-      return JSON.parse(searchParamsFilter) as UserFilterType;
-    }
-    return undefined;
-  }, [searchParams]);
-
   // Fetch data
   const { data, hasNextPage, isFetchingNextPage, fetchNextPage } =
-    useGetUsersQuery({ filter, sort: { order, orderBy } });
+    useGetUsersQuery({ sort: { order, orderBy } });
 
   // Handle infinite scroll
   const handleScroll = useCallback(() => {
@@ -91,7 +80,6 @@ function Users() {
           <Group justify="space-between">
             <Title order={3}>{tUsers("admin-panel-users:title")}</Title>
             <Group>
-              <UserFilter />
               <Button
                 component={Link}
                 href="/admin-panel/users/create"
