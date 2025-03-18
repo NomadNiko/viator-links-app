@@ -10,12 +10,6 @@ interface UserTableRowProps {
 function UserTableRow({ user }: UserTableRowProps) {
   const { t: tRoles } = useTranslation("admin-panel-roles");
 
-  // Function to obfuscate user ID - show only last 8 characters
-  const obfuscateUserId = (id: string) => {
-    if (!id) return "";
-    return id.length > 8 ? `•••${id.slice(-8)}` : id;
-  };
-
   return (
     <>
       <td style={{ width: 50, textAlign: "center" }}>
@@ -25,9 +19,6 @@ function UserTableRow({ user }: UserTableRowProps) {
           size="md"
         />
       </td>
-      <td style={{ width: 120, textAlign: "center" }}>
-        {obfuscateUserId(user?.id)}
-      </td>
       <td style={{ width: 200 }}>
         {user?.firstName} {user?.lastName}
       </td>
@@ -35,7 +26,7 @@ function UserTableRow({ user }: UserTableRowProps) {
       <td style={{ width: 80, textAlign: "center" }}>
         {tRoles(`role.${user?.role?.id}`)}
       </td>
-      <td style={{ width: 130, textAlign: "center" }}>
+      <td style={{ width: 130, textAlign: "left" }}>
         {user && <UserActions user={user} />}
       </td>
     </>

@@ -28,17 +28,6 @@ function UserTableHeader({
         {/* Avatar column - fixed width, centered */}
         <th style={{ width: 50, textAlign: "center" }}></th>
 
-        {/* ID column - fixed width, sortable, centered */}
-        <TableSortCell<User>
-          width={120}
-          orderBy={orderBy}
-          order={order}
-          column="id"
-          handleRequestSort={handleRequestSort}
-        >
-          {tUsers("admin-panel-users:table.column1")}
-        </TableSortCell>
-
         {/* Name column - fixed width, left-aligned */}
         <th style={{ width: 200, textAlign: "left" }}>
           {tUsers("admin-panel-users:table.column2")}
