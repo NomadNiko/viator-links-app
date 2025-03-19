@@ -14,7 +14,12 @@ import {
 } from "@/app/[language]/admin-panel/users/user-filter-types";
 import { SortEnum } from "@/services/api/types/sort-type";
 import { Button, Group, Menu, ActionIcon, Text } from "@mantine/core";
-import { IconChevronDown, IconTrash, IconEdit } from "@tabler/icons-react";
+import {
+  IconChevronDown,
+  IconTrash,
+  IconEdit,
+  IconLock,
+} from "@tabler/icons-react";
 import Link from "@/components/link";
 import { useResponsive } from "@/services/responsive/use-responsive";
 
@@ -43,7 +48,6 @@ function UserActions({ user }: UserActionsProps) {
       const searchParams = new URLSearchParams(window.location.search);
       const searchParamsFilter = searchParams.get("filter");
       const searchParamsSort = searchParams.get("sort");
-
       let filter: UserFilterType | undefined = undefined;
       let sort: UserSortType | undefined = {
         order: SortEnum.DESC,
@@ -53,7 +57,6 @@ function UserActions({ user }: UserActionsProps) {
       if (searchParamsFilter) {
         filter = JSON.parse(searchParamsFilter);
       }
-
       if (searchParamsSort) {
         sort = JSON.parse(searchParamsSort);
       }
@@ -73,7 +76,6 @@ function UserActions({ user }: UserActionsProps) {
             data: page.data.filter((item) => item.id !== user.id),
           })),
         };
-
         queryClient.setQueryData(
           usersQueryKeys.list().sub.by({ sort, filter }).key,
           newData
@@ -86,37 +88,7 @@ function UserActions({ user }: UserActionsProps) {
     }
   };
 
-  // If we can't delete and we're on mobile, just show a compact edit button
-  if (!canDelete && isMobile) {
-    return (
-      <Button
-        size="xs"
-        variant="light"
-        component={Link}
-        href={`/admin-panel/users/edit/${user.id}`}
-      >
-        <Group gap={4} align="center" wrap="nowrap">
-          <IconEdit size={14} />
-          <Text size="xs">{tUsers("admin-panel-users:actions.edit")}</Text>
-        </Group>
-      </Button>
-    );
-  }
-
-  // If we can't delete and we're on desktop, show normal edit button
-  if (!canDelete) {
-    return (
-      <Button
-        size="xs"
-        component={Link}
-        href={`/admin-panel/users/edit/${user.id}`}
-      >
-        {tUsers("admin-panel-users:actions.edit")}
-      </Button>
-    );
-  }
-
-  // In mobile view with delete capability, show compact buttons
+  // Mobile view with all actions as buttons
   if (isMobile) {
     return (
       <Group gap="xs" wrap="nowrap">
@@ -131,17 +103,34 @@ function UserActions({ user }: UserActionsProps) {
             <Text size="xs">{tUsers("admin-panel-users:actions.edit")}</Text>
           </Group>
         </Button>
-        <Button size="xs" variant="light" color="red" onClick={handleDelete}>
+        <Button
+          size="xs"
+          variant="light"
+          component={Link}
+          href={`/admin-panel/users/edit-password/${user.id}`}
+        >
           <Group gap={4} align="center" wrap="nowrap">
-            <IconTrash size={14} />
-            <Text size="xs">{tUsers("admin-panel-users:actions.delete")}</Text>
+            <IconLock size={14} />
+            <Text size="xs">
+              {tUsers("admin-panel-users:actions.changePassword")}
+            </Text>
           </Group>
         </Button>
+        {canDelete && (
+          <Button size="xs" variant="light" color="red" onClick={handleDelete}>
+            <Group gap={4} align="center" wrap="nowrap">
+              <IconTrash size={14} />
+              <Text size="xs">
+                {tUsers("admin-panel-users:actions.delete")}
+              </Text>
+            </Group>
+          </Button>
+        )}
       </Group>
     );
   }
 
-  // Otherwise show desktop view with dropdown
+  // Desktop view with dropdown
   return (
     <Group gap="xs">
       <Button
@@ -151,22 +140,36 @@ function UserActions({ user }: UserActionsProps) {
       >
         {tUsers("admin-panel-users:actions.edit")}
       </Button>
-      <Menu opened={menuOpened} onChange={setMenuOpened} position="bottom-end">
-        <Menu.Target>
-          <ActionIcon variant="light" size="lg">
-            <IconChevronDown size={16} />
-          </ActionIcon>
-        </Menu.Target>
-        <Menu.Dropdown>
-          <Menu.Item
-            color="red"
-            leftSection={<IconTrash size={14} />}
-            onClick={handleDelete}
-          >
-            {tUsers("admin-panel-users:actions.delete")}
-          </Menu.Item>
-        </Menu.Dropdown>
-      </Menu>
+      <Button
+        size="xs"
+        variant="light"
+        component={Link}
+        href={`/admin-panel/users/edit-password/${user.id}`}
+      >
+        {tUsers("admin-panel-users:actions.changePassword")}
+      </Button>
+      {canDelete && (
+        <Menu
+          opened={menuOpened}
+          onChange={setMenuOpened}
+          position="bottom-end"
+        >
+          <Menu.Target>
+            <ActionIcon variant="light" size="lg">
+              <IconChevronDown size={16} />
+            </ActionIcon>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Item
+              color="red"
+              leftSection={<IconTrash size={14} />}
+              onClick={handleDelete}
+            >
+              {tUsers("admin-panel-users:actions.delete")}
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
+      )}
     </Group>
   );
 }

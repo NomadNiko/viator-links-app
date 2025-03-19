@@ -10,7 +10,8 @@
     "add": "Add User",
     "edit": "Edit",
     "delete": "Delete",
-    "create": "Create User"
+    "create": "Create User",
+    "changePassword": "Change Password"
   },
   "confirm": {
     "delete": {

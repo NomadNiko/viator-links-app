@@ -12,7 +12,7 @@ function UserTableRow({ user }: UserTableRowProps) {
 
   return (
     <>
-      <td style={{ width: 50, textAlign: "center" }}>
+      <td style={{ width: 60, textAlign: "center" }}>
         <Avatar
           alt={user?.firstName + " " + user?.lastName}
           src={user?.photo?.path}
@@ -23,10 +23,10 @@ function UserTableRow({ user }: UserTableRowProps) {
         {user?.firstName} {user?.lastName}
       </td>
       <td>{user?.email}</td>
-      <td style={{ width: 80, textAlign: "center" }}>
+      <td style={{ width: 100, textAlign: "center" }}>
         {tRoles(`role.${user?.role?.id}`)}
       </td>
-      <td style={{ width: 130, textAlign: "left" }}>
+      <td style={{ width: 300, textAlign: "left" }}>
         {user && <UserActions user={user} />}
       </td>
     </>
