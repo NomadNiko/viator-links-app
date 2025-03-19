@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@mantine/core";
-import withPageRequiredGuest from "@/services/auth/with-page-required-guest";
+import GuestRouteGuard from "@/services/auth/guest-route-guard";
 import {
   useForm,
   FormProvider,
@@ -14,6 +14,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { useTranslation } from "@/services/i18n/client";
 import { useSnackbar } from "@/components/mantine/feedback/notification-service";
+import useGlobalLoading from "@/services/loading/use-global-loading";
 
 type ForgotPasswordFormData = {
   email: string;
@@ -44,33 +45,44 @@ function Form() {
   const fetchAuthForgotPassword = useAuthForgotPasswordService();
   const { t } = useTranslation("forgot-password");
   const validationSchema = useValidationSchema();
+  const { setLoading } = useGlobalLoading();
+
   const methods = useForm<ForgotPasswordFormData>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       email: "",
     },
   });
+
   const { handleSubmit, setError, control } = methods;
 
   const onSubmit = handleSubmit(async (formData) => {
-    const { data, status } = await fetchAuthForgotPassword(formData);
-    if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
-      (Object.keys(data.errors) as Array<keyof ForgotPasswordFormData>).forEach(
-        (key) => {
+    setLoading(true);
+
+    try {
+      const { data, status } = await fetchAuthForgotPassword(formData);
+
+      if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
+        (
+          Object.keys(data.errors) as Array<keyof ForgotPasswordFormData>
+        ).forEach((key) => {
           setError(key, {
             type: "manual",
             message: t(
               `forgot-password:inputs.${key}.validation.server.${data.errors[key]}`
             ),
           });
-        }
-      );
-      return;
-    }
-    if (status === HTTP_CODES_ENUM.NO_CONTENT) {
-      enqueueSnackbar(t("forgot-password:alerts.success"), {
-        variant: "success",
-      });
+        });
+        return;
+      }
+
+      if (status === HTTP_CODES_ENUM.NO_CONTENT) {
+        enqueueSnackbar(t("forgot-password:alerts.success"), {
+          variant: "success",
+        });
+      }
+    } finally {
+      setLoading(false);
     }
   });
 
@@ -102,7 +114,11 @@ function Form() {
 }
 
 function ForgotPassword() {
-  return <Form />;
+  return (
+    <GuestRouteGuard>
+      <Form />
+    </GuestRouteGuard>
+  );
 }
 
-export default withPageRequiredGuest(ForgotPassword);
+export default ForgotPassword;

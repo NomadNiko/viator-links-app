@@ -21,20 +21,7 @@ export default function HomeMantine() {
             {t("title")}
           </Title>
           <Text>
-            <Trans
-              i18nKey={`description`}
-              t={t}
-              components={[
-                <Anchor
-                  key="1"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href="https://github.com/brocoders/extensive-react-boilerplate/blob/main/docs/README.md"
-                >
-                  {}
-                </Anchor>,
-              ]}
-            />
+            <Trans i18nKey={`description`} t={t} />
           </Text>
         </Stack>
         <Box ta="center" pb="md">

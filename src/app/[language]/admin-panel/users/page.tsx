@@ -12,7 +12,6 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     params.language,
     "admin-panel-users"
   );
-
   return {
     title: t("title"),
   };

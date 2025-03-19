@@ -9,7 +9,6 @@ import { Container } from "@mantine/core";
 import { Stack, Box, Title, TextInput, Select } from "@mantine/core";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import withPageRequiredAuth from "@/services/auth/with-page-required-auth";
 import Link from "@/components/link";
 import FormAvatarInput from "@/components/form/avatar-input/form-avatar-input";
 import { FileEntity } from "@/services/api/types/file-entity";
@@ -21,6 +20,9 @@ import { useRouter } from "next/navigation";
 import { Role, RoleEnum } from "@/services/api/types/role";
 import { Button } from "@/components/mantine/core/Button";
 import { useSnackbar } from "@/components/mantine/feedback/notification-service";
+import RouteGuard from "@/services/auth/route-guard";
+import { useEffect } from "react";
+import useGlobalLoading from "@/services/loading/use-global-loading";
 
 type CreateFormData = {
   email: string;
@@ -97,6 +99,13 @@ function FormCreateUser() {
   const { t } = useTranslation("admin-panel-users-create");
   const validationSchema = useValidationSchema();
   const { enqueueSnackbar } = useSnackbar();
+  const { setLoading } = useGlobalLoading();
+
+  // Turn off loading indicator when component mounts
+  useEffect(() => {
+    setLoading(false);
+  }, [setLoading]);
+
   const methods = useForm<CreateFormData>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -114,25 +123,30 @@ function FormCreateUser() {
   const { handleSubmit, setError, control } = methods;
 
   const onSubmit = handleSubmit(async (formData) => {
-    const { data, status } = await fetchPostUser(formData);
-    if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
-      (Object.keys(data.errors) as Array<keyof CreateFormData>).forEach(
-        (key) => {
-          setError(key, {
-            type: "manual",
-            message: t(
-              `admin-panel-users-create:inputs.${key}.validation.server.${data.errors[key]}`
-            ),
-          });
-        }
-      );
-      return;
-    }
-    if (status === HTTP_CODES_ENUM.CREATED) {
-      enqueueSnackbar(t("admin-panel-users-create:alerts.user.success"), {
-        variant: "success",
-      });
-      router.push("/admin-panel/users");
+    setLoading(true);
+    try {
+      const { data, status } = await fetchPostUser(formData);
+      if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
+        (Object.keys(data.errors) as Array<keyof CreateFormData>).forEach(
+          (key) => {
+            setError(key, {
+              type: "manual",
+              message: t(
+                `admin-panel-users-create:inputs.${key}.validation.server.${data.errors[key]}`
+              ),
+            });
+          }
+        );
+        return;
+      }
+      if (status === HTTP_CODES_ENUM.CREATED) {
+        enqueueSnackbar(t("admin-panel-users-create:alerts.user.success"), {
+          variant: "success",
+        });
+        router.push("/admin-panel/users");
+      }
+    } finally {
+      setLoading(false);
     }
   });
 
@@ -156,7 +170,6 @@ function FormCreateUser() {
           <Stack gap="md" py="md">
             <Title order={6}>{t("admin-panel-users-create:title")}</Title>
             <FormAvatarInput<CreateFormData> name="photo" testId="photo" />
-
             <Controller
               name="email"
               control={control}
@@ -170,7 +183,6 @@ function FormCreateUser() {
                 />
               )}
             />
-
             <Controller
               name="password"
               control={control}
@@ -185,7 +197,6 @@ function FormCreateUser() {
                 />
               )}
             />
-
             <Controller
               name="passwordConfirmation"
               control={control}
@@ -201,7 +212,6 @@ function FormCreateUser() {
                 />
               )}
             />
-
             <Controller
               name="firstName"
               control={control}
@@ -214,7 +224,6 @@ function FormCreateUser() {
                 />
               )}
             />
-
             <Controller
               name="lastName"
               control={control}
@@ -227,7 +236,6 @@ function FormCreateUser() {
                 />
               )}
             />
-
             <Controller
               name="role"
               control={control}
@@ -243,7 +251,6 @@ function FormCreateUser() {
                 />
               )}
             />
-
             <Box>
               <CreateUserFormActions />
               <Button
@@ -264,7 +271,11 @@ function FormCreateUser() {
 }
 
 function CreateUser() {
-  return <FormCreateUser />;
+  return (
+    <RouteGuard roles={[RoleEnum.ADMIN]}>
+      <FormCreateUser />
+    </RouteGuard>
+  );
 }
 
-export default withPageRequiredAuth(CreateUser);
+export default CreateUser;

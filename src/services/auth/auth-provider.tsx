@@ -1,5 +1,4 @@
 "use client";
-
 import { User } from "@/services/api/types/user";
 import {
   PropsWithChildren,
@@ -29,7 +28,6 @@ function AuthProvider(props: PropsWithChildren<{}>) {
 
   const setTokensInfo = useCallback((tokensInfo: TokensInfo) => {
     setTokensInfoToStorage(tokensInfo);
-
     if (!tokensInfo) {
       setUser(null);
     }
@@ -37,7 +35,6 @@ function AuthProvider(props: PropsWithChildren<{}>) {
 
   const logOut = useCallback(async () => {
     const tokens = getTokensInfo();
-
     if (tokens?.token) {
       await fetchBase(AUTH_LOGOUT_URL, {
         method: "POST",
@@ -46,24 +43,23 @@ function AuthProvider(props: PropsWithChildren<{}>) {
     setTokensInfo(null);
   }, [setTokensInfo, fetchBase]);
 
+  // Load user data once at initialization
   const loadData = useCallback(async () => {
     const tokens = getTokensInfo();
-
     try {
       if (tokens?.token) {
         const response = await fetchBase(AUTH_ME_URL, {
           method: "GET",
         });
-
         if (response.status === HTTP_CODES_ENUM.UNAUTHORIZED) {
           logOut();
           return;
         }
-
         const data = await response.json();
         setUser(data);
       }
     } finally {
+      // Mark auth as loaded regardless of outcome
       setIsLoaded(true);
     }
   }, [fetchBase, logOut]);
@@ -94,6 +90,11 @@ function AuthProvider(props: PropsWithChildren<{}>) {
     }),
     [setTokensInfo]
   );
+
+  // Show nothing until auth is loaded to prevent flashing
+  if (!isLoaded) {
+    return null;
+  }
 
   return (
     <AuthContext.Provider value={contextValue}>

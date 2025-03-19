@@ -1,6 +1,7 @@
+// ./mantine-boilerplate/src/app/[language]/password-change/page-content.tsx
 "use client";
 import { Button } from "@/components/mantine/core/Button";
-import withPageRequiredGuest from "@/services/auth/with-page-required-guest";
+import GuestRouteGuard from "@/services/auth/guest-route-guard";
 import {
   useForm,
   FormProvider,
@@ -18,6 +19,7 @@ import { useTranslation } from "@/services/i18n/client";
 import { useEffect, useMemo, useState } from "react";
 import { IconAlertCircle } from "@tabler/icons-react";
 import { useSnackbar } from "@/components/mantine/feedback/notification-service";
+import useGlobalLoading from "@/services/loading/use-global-loading";
 
 type PasswordChangeFormData = {
   password: string;
@@ -73,6 +75,7 @@ function ExpiresAlert() {
   }, [expires]);
 
   const isExpired = expires < currentTime;
+
   return isExpired ? (
     <Alert
       icon={<IconAlertCircle size={16} />}
@@ -91,6 +94,8 @@ function Form() {
   const { t } = useTranslation("password-change");
   const validationSchema = useValidationSchema();
   const router = useRouter();
+  const { setLoading } = useGlobalLoading();
+
   const methods = useForm<PasswordChangeFormData>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -98,34 +103,44 @@ function Form() {
       passwordConfirmation: "",
     },
   });
+
   const { handleSubmit, setError, control } = methods;
 
   const onSubmit = handleSubmit(async (formData) => {
-    const params = new URLSearchParams(window.location.search);
-    const hash = params.get("hash");
-    if (!hash) return;
-    const { data, status } = await fetchAuthResetPassword({
-      password: formData.password,
-      hash,
-    });
-    if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
-      (Object.keys(data.errors) as Array<keyof PasswordChangeFormData>).forEach(
-        (key) => {
+    setLoading(true);
+
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const hash = params.get("hash");
+      if (!hash) return;
+
+      const { data, status } = await fetchAuthResetPassword({
+        password: formData.password,
+        hash,
+      });
+
+      if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
+        (
+          Object.keys(data.errors) as Array<keyof PasswordChangeFormData>
+        ).forEach((key) => {
           setError(key, {
             type: "manual",
             message: t(
               `password-change:inputs.${key}.validation.server.${data.errors[key]}`
             ),
           });
-        }
-      );
-      return;
-    }
-    if (status === HTTP_CODES_ENUM.NO_CONTENT) {
-      enqueueSnackbar(t("password-change:alerts.success"), {
-        variant: "success",
-      });
-      router.replace("/sign-in");
+        });
+        return;
+      }
+
+      if (status === HTTP_CODES_ENUM.NO_CONTENT) {
+        enqueueSnackbar(t("password-change:alerts.success"), {
+          variant: "success",
+        });
+        router.replace("/sign-in");
+      }
+    } finally {
+      setLoading(false);
     }
   });
 
@@ -136,7 +151,6 @@ function Form() {
           <Stack gap="md" mb="md" mt="lg">
             <Title order={6}>{t("password-change:title")}</Title>
             <ExpiresAlert />
-
             <Controller
               name="password"
               control={control}
@@ -150,7 +164,6 @@ function Form() {
                 />
               )}
             />
-
             <Controller
               name="passwordConfirmation"
               control={control}
@@ -164,7 +177,6 @@ function Form() {
                 />
               )}
             />
-
             <FormActions />
           </Stack>
         </form>
@@ -174,7 +186,11 @@ function Form() {
 }
 
 function PasswordChange() {
-  return <Form />;
+  return (
+    <GuestRouteGuard>
+      <Form />
+    </GuestRouteGuard>
+  );
 }
 
-export default withPageRequiredGuest(PasswordChange);
+export default PasswordChange;

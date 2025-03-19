@@ -1,15 +1,24 @@
 "use client";
 import useAuth from "@/services/auth/use-auth";
-import withPageRequiredAuth from "@/services/auth/with-page-required-auth";
 import { Container, Group, Stack, Box, Title } from "@mantine/core";
 import { Avatar } from "@/components/mantine/data/Avatar";
 import { Button } from "@mantine/core";
 import Link from "@/components/link";
 import { useTranslation } from "@/services/i18n/client";
+import RouteGuard from "@/services/auth/route-guard";
+import { useEffect } from "react";
+import useGlobalLoading from "@/services/loading/use-global-loading";
 
 function Profile() {
   const { user } = useAuth();
   const { t } = useTranslation("profile");
+  const { setLoading } = useGlobalLoading();
+
+  // Turn off loading indicator when component mounts
+  useEffect(() => {
+    setLoading(false);
+  }, [setLoading]);
+
   return (
     <Container size="sm">
       <Group gap="md" py="md" align="flex-start">
@@ -42,4 +51,12 @@ function Profile() {
   );
 }
 
-export default withPageRequiredAuth(Profile);
+function ProfilePage() {
+  return (
+    <RouteGuard>
+      <Profile />
+    </RouteGuard>
+  );
+}
+
+export default ProfilePage;

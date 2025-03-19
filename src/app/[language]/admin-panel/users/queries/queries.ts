@@ -22,13 +22,14 @@ export const usersQueryKeys = createQueryKeys(["users"], {
 });
 
 export const useGetUsersQuery = ({
-  sort,
   filter,
+  sort,
 }: {
   filter?: UserFilterType | undefined;
   sort?: UserSortType | undefined;
 } = {}) => {
   const fetch = useGetUsersService();
+
   const query = useInfiniteQuery({
     queryKey: usersQueryKeys.list().sub.by({ sort, filter }).key,
     initialPageParam: 1,
@@ -50,12 +51,19 @@ export const useGetUsersQuery = ({
           nextPage: data.hasNextPage ? pageParam + 1 : undefined,
         };
       }
+
+      // Return empty data if not OK
+      return {
+        data: [],
+        nextPage: undefined,
+      };
     },
     getNextPageParam: (lastPage) => {
       return lastPage?.nextPage;
     },
-    // Remove gcTime: 0 which was forcing refetches
     staleTime: 30000, // 30 seconds
+    refetchOnWindowFocus: false,
   });
+
   return query;
 };

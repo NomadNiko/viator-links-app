@@ -7,15 +7,13 @@ import { useTranslation } from "@/services/i18n/client";
 import { useAuthLoginService } from "@/services/api/services/auth";
 import useAuthActions from "@/services/auth/use-auth-actions";
 import useAuthTokens from "@/services/auth/use-auth-tokens";
-import withPageRequiredGuest from "@/services/auth/with-page-required-guest";
+import GuestRouteGuard from "@/services/auth/guest-route-guard";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { IS_SIGN_UP_ENABLED } from "@/services/auth/config";
 import { Button } from "@/components/mantine/core/Button";
 import { Container } from "@mantine/core";
-import { Box, Divider, Stack, Text, TextInput, Anchor } from "@mantine/core";
-import Link from "@/components/link";
-import { isGoogleAuthEnabled } from "@/services/social-auth/google/google-config";
-import SocialAuth from "@/services/social-auth/social-auth";
+import { Box, Divider, Stack, Text, TextInput } from "@mantine/core";
+import useGlobalLoading from "@/services/loading/use-global-loading";
 
 type SignInFormData = {
   email: string;
@@ -27,6 +25,8 @@ function SignIn() {
   const { setUser } = useAuthActions();
   const { setTokensInfo } = useAuthTokens();
   const fetchAuthLogin = useAuthLoginService();
+  const { setLoading } = useGlobalLoading();
+
   const validationSchema = yup.object().shape({
     email: yup
       .string()
@@ -37,6 +37,7 @@ function SignIn() {
       .min(6, t("sign-in:inputs.password.validation.min"))
       .required(t("sign-in:inputs.password.validation.required")),
   });
+
   const methods = useForm<SignInFormData>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -44,11 +45,14 @@ function SignIn() {
       password: "",
     },
   });
+
   const { handleSubmit, setError, control } = methods;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const onSubmit = handleSubmit(async (formData) => {
     setIsSubmitting(true);
+    setLoading(true);
+
     try {
       const { data, status } = await fetchAuthLogin(formData);
       if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
@@ -74,82 +78,80 @@ function SignIn() {
       }
     } finally {
       setIsSubmitting(false);
+      setLoading(false);
     }
   });
 
   return (
-    <FormProvider {...methods}>
-      <Container size="xs">
-        <form onSubmit={onSubmit}>
-          <Stack gap="md" mt="lg">
-            <Text size="xl" fw={600}>
-              {t("sign-in:title")}
-            </Text>
-
-            <Controller
-              name="email"
-              control={control}
-              render={({ field, fieldState }) => (
-                <TextInput
-                  {...field}
-                  label={t("sign-in:inputs.email.label")}
-                  type="email"
-                  error={fieldState.error?.message}
-                  data-testid="email"
-                  autoFocus
-                />
-              )}
-            />
-
-            <Controller
-              name="password"
-              control={control}
-              render={({ field, fieldState }) => (
-                <TextInput
-                  {...field}
-                  type="password"
-                  label={t("sign-in:inputs.password.label")}
-                  error={fieldState.error?.message}
-                  data-testid="password"
-                />
-              )}
-            />
-
-            <Anchor href="/forgot-password" data-testid="forgot-password">
-              {t("sign-in:actions.forgotPassword")}
-            </Anchor>
-            <Box>
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                data-testid="sign-in-submit"
-                mr="xs"
+    <GuestRouteGuard>
+      <FormProvider {...methods}>
+        <Container size="xs">
+          <form onSubmit={onSubmit}>
+            <Stack gap="md" mt="lg">
+              <Text size="xl" fw={600}>
+                {t("sign-in:title")}
+              </Text>
+              <Controller
+                name="email"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <TextInput
+                    {...field}
+                    label={t("sign-in:inputs.email.label")}
+                    type="email"
+                    error={fieldState.error?.message}
+                    data-testid="email"
+                    autoFocus
+                  />
+                )}
+              />
+              <Controller
+                name="password"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <TextInput
+                    {...field}
+                    type="password"
+                    label={t("sign-in:inputs.password.label")}
+                    error={fieldState.error?.message}
+                    data-testid="password"
+                  />
+                )}
+              />
+              <Text
+                component="a"
+                href="/forgot-password"
+                data-testid="forgot-password"
               >
-                {t("sign-in:actions.submit")}
-              </Button>
-              {IS_SIGN_UP_ENABLED && (
+                {t("sign-in:actions.forgotPassword")}
+              </Text>
+              <Box>
                 <Button
-                  variant="outlined"
-                  color="gray"
-                  component={Link}
-                  href="/sign-up"
-                  data-testid="create-account"
+                  type="submit"
+                  disabled={isSubmitting}
+                  data-testid="sign-in-submit"
+                  mr="xs"
                 >
-                  {t("sign-in:actions.createAccount")}
+                  {t("sign-in:actions.submit")}
                 </Button>
-              )}
-            </Box>
-            {[isGoogleAuthEnabled].some(Boolean) && (
-              <>
-                <Divider label={t("sign-in:or")} labelPosition="center" />
-                <SocialAuth />
-              </>
-            )}
-          </Stack>
-        </form>
-      </Container>
-    </FormProvider>
+                {IS_SIGN_UP_ENABLED && (
+                  <Button
+                    variant="outlined"
+                    color="gray"
+                    href="/sign-up"
+                    data-testid="create-account"
+                  >
+                    {t("sign-in:actions.createAccount")}
+                  </Button>
+                )}
+              </Box>
+              <Divider label={t("sign-in:or")} labelPosition="center" />
+            </Stack>
+          </form>
+        </Container>
+      </FormProvider>
+    </GuestRouteGuard>
   );
 }
 
-export default withPageRequiredGuest(SignIn);
+export default SignIn;

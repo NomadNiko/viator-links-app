@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/mantine/core/Button";
-import withPageRequiredGuest from "@/services/auth/with-page-required-guest";
+import GuestRouteGuard from "@/services/auth/guest-route-guard";
 import {
   useForm,
   FormProvider,
@@ -22,6 +22,7 @@ import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { useTranslation } from "@/services/i18n/client";
 import SocialAuth from "@/services/social-auth/social-auth";
 import { isGoogleAuthEnabled } from "@/services/social-auth/google/google-config";
+import useGlobalLoading from "@/services/loading/use-global-loading";
 
 type TPolicy = {
   id: string;
@@ -77,6 +78,8 @@ function Form() {
   const fetchAuthSignUp = useAuthSignUpService();
   const { t } = useTranslation("sign-up");
   const validationSchema = useValidationSchema();
+  const { setLoading } = useGlobalLoading();
+
   const methods = useForm<SignUpFormData>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -87,35 +90,45 @@ function Form() {
       policy: [],
     },
   });
+
   const { handleSubmit, setError, control } = methods;
 
   const onSubmit = handleSubmit(async (formData) => {
-    const { data: dataSignUp, status: statusSignUp } =
-      await fetchAuthSignUp(formData);
-    if (statusSignUp === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
-      (Object.keys(dataSignUp.errors) as Array<keyof SignUpFormData>).forEach(
-        (key) => {
-          setError(key, {
-            type: "manual",
-            message: t(
-              `sign-up:inputs.${key}.validation.server.${dataSignUp.errors[key]}`
-            ),
-          });
-        }
-      );
-      return;
-    }
-    const { data: dataSignIn, status: statusSignIn } = await fetchAuthLogin({
-      email: formData.email,
-      password: formData.password,
-    });
-    if (statusSignIn === HTTP_CODES_ENUM.OK) {
-      setTokensInfo({
-        token: dataSignIn.token,
-        refreshToken: dataSignIn.refreshToken,
-        tokenExpires: dataSignIn.tokenExpires,
+    setLoading(true);
+
+    try {
+      const { data: dataSignUp, status: statusSignUp } =
+        await fetchAuthSignUp(formData);
+
+      if (statusSignUp === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
+        (Object.keys(dataSignUp.errors) as Array<keyof SignUpFormData>).forEach(
+          (key) => {
+            setError(key, {
+              type: "manual",
+              message: t(
+                `sign-up:inputs.${key}.validation.server.${dataSignUp.errors[key]}`
+              ),
+            });
+          }
+        );
+        return;
+      }
+
+      const { data: dataSignIn, status: statusSignIn } = await fetchAuthLogin({
+        email: formData.email,
+        password: formData.password,
       });
-      setUser(dataSignIn.user);
+
+      if (statusSignIn === HTTP_CODES_ENUM.OK) {
+        setTokensInfo({
+          token: dataSignIn.token,
+          refreshToken: dataSignIn.refreshToken,
+          tokenExpires: dataSignIn.tokenExpires,
+        });
+        setUser(dataSignIn.user);
+      }
+    } finally {
+      setLoading(false);
     }
   });
 
@@ -125,7 +138,6 @@ function Form() {
         <form onSubmit={onSubmit}>
           <Stack gap="md" mb="md" mt="md">
             <Title order={6}>{t("sign-up:title")}</Title>
-
             <Controller
               name="firstName"
               control={control}
@@ -139,7 +151,6 @@ function Form() {
                 />
               )}
             />
-
             <Controller
               name="lastName"
               control={control}
@@ -152,7 +163,6 @@ function Form() {
                 />
               )}
             />
-
             <Controller
               name="email"
               control={control}
@@ -166,7 +176,6 @@ function Form() {
                 />
               )}
             />
-
             <Controller
               name="password"
               control={control}
@@ -180,7 +189,6 @@ function Form() {
                 />
               )}
             />
-
             <Box>
               <FormActions />
               <Box ml="xs" style={{ display: "inline-block" }}>
@@ -209,7 +217,11 @@ function Form() {
 }
 
 function SignUp() {
-  return <Form />;
+  return (
+    <GuestRouteGuard>
+      <Form />
+    </GuestRouteGuard>
+  );
 }
 
-export default withPageRequiredGuest(SignUp);
+export default SignUp;

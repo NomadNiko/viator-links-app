@@ -1,10 +1,9 @@
 "use client";
 import { RoleEnum } from "@/services/api/types/role";
-import withPageRequiredAuth from "@/services/auth/with-page-required-auth";
 import { useTranslation } from "@/services/i18n/client";
 import { Container, Title } from "@mantine/core";
 import { Grid, Group } from "@mantine/core";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useGetUsersQuery } from "./queries/queries";
 import removeDuplicatesFromArrayObjects from "@/services/helpers/remove-duplicates-from-array-of-objects";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -13,6 +12,8 @@ import { User } from "@/services/api/types/user";
 import { Button } from "@/components/mantine/core/Button";
 import Link from "@/components/link";
 import UsersTable from "@/components/users/UsersTable";
+import RouteGuard from "@/services/auth/route-guard";
+import useGlobalLoading from "@/services/loading/use-global-loading";
 
 type UsersKeys = keyof User;
 
@@ -20,6 +21,7 @@ function Users() {
   const { t: tUsers } = useTranslation("admin-panel-users");
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { setLoading } = useGlobalLoading();
 
   // Initialize sorting state
   const [{ order, orderBy }, setSort] = useState<{
@@ -54,8 +56,13 @@ function Users() {
   };
 
   // Fetch data
-  const { data, hasNextPage, isFetchingNextPage, fetchNextPage } =
+  const { data, hasNextPage, isFetchingNextPage, fetchNextPage, isLoading } =
     useGetUsersQuery({ sort: { order, orderBy } });
+
+  // Set global loading state based on query status
+  useEffect(() => {
+    setLoading(isLoading);
+  }, [isLoading, setLoading]);
 
   // Handle infinite scroll
   const handleScroll = useCallback(() => {
@@ -71,39 +78,39 @@ function Users() {
   }, [data]);
 
   return (
-    <Container size="md">
-      {" "}
-      {/* Changed from "xl" to "md" to make it about 1/3 smaller */}
-      <Grid pt="md">
-        {/* Header with title and actions */}
-        <Grid.Col span={12}>
-          <Group justify="space-between">
-            <Title order={3}>{tUsers("admin-panel-users:title")}</Title>
-            <Group>
-              <Button
-                component={Link}
-                href="/admin-panel/users/create"
-                color="green"
-              >
-                {tUsers("admin-panel-users:actions.create")}
-              </Button>
+    <RouteGuard roles={[RoleEnum.ADMIN]}>
+      <Container size="md">
+        <Grid pt="md">
+          {/* Header with title and actions */}
+          <Grid.Col span={12}>
+            <Group justify="space-between">
+              <Title order={3}>{tUsers("admin-panel-users:title")}</Title>
+              <Group>
+                <Button
+                  component={Link}
+                  href="/admin-panel/users/create"
+                  color="green"
+                >
+                  {tUsers("admin-panel-users:actions.create")}
+                </Button>
+              </Group>
             </Group>
-          </Group>
-        </Grid.Col>
-        {/* Users table */}
-        <Grid.Col span={12} mb="sm">
-          <UsersTable
-            users={users}
-            order={order}
-            orderBy={orderBy}
-            handleRequestSort={handleRequestSort}
-            handleScroll={handleScroll}
-            isFetchingNextPage={isFetchingNextPage}
-          />
-        </Grid.Col>
-      </Grid>
-    </Container>
+          </Grid.Col>
+          {/* Users table */}
+          <Grid.Col span={12} mb="sm">
+            <UsersTable
+              users={users}
+              order={order}
+              orderBy={orderBy}
+              handleRequestSort={handleRequestSort}
+              handleScroll={handleScroll}
+              isFetchingNextPage={isFetchingNextPage}
+            />
+          </Grid.Col>
+        </Grid>
+      </Container>
+    </RouteGuard>
   );
 }
 
-export default withPageRequiredAuth(Users, { roles: [RoleEnum.ADMIN] });
+export default Users;

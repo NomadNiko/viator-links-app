@@ -1,7 +1,15 @@
 "use client";
 import { User } from "@/services/api/types/user";
 import { SortEnum } from "@/services/api/types/sort-type";
-import { Box, ScrollArea, Paper, useMantineTheme } from "@mantine/core";
+import {
+  Box,
+  ScrollArea,
+  Paper,
+  useMantineTheme,
+  Text,
+  Center,
+  Loader,
+} from "@mantine/core";
 import { Table } from "@/components/mantine/data/Table"; // Import from custom component
 import UserTableHeader from "./UserTableHeader";
 import UserTableRow from "./UserTableRow";
@@ -16,6 +24,7 @@ interface UsersTableProps {
   ) => void;
   handleScroll: () => void;
   isFetchingNextPage: boolean;
+  isLoading?: boolean;
 }
 
 function UsersTable({
@@ -24,6 +33,7 @@ function UsersTable({
   orderBy,
   handleRequestSort,
   isFetchingNextPage,
+  isLoading,
 }: UsersTableProps) {
   const theme = useMantineTheme();
 
@@ -41,18 +51,33 @@ function UsersTable({
               />
             </thead>
             <tbody>
-              {users.map((user) => (
-                <tr key={user.id}>
-                  <UserTableRow user={user} />
+              {isFetchingNextPage && (
+                <tr>
+                  <td colSpan={6} style={{ padding: 0 }}>
+                    <Loader size="sm" style={{ width: "100%" }} />
+                  </td>
                 </tr>
-              ))}
-              {users.length === 0 && (
+              )}
+
+              {users.length > 0 ? (
+                users.map((user) => (
+                  <tr key={user.id}>
+                    <UserTableRow user={user} />
+                  </tr>
+                ))
+              ) : (
                 <tr>
                   <td
                     colSpan={6}
                     style={{ textAlign: "center", padding: theme.spacing.lg }}
                   >
-                    No users found
+                    {isLoading ? (
+                      <Center>
+                        <Loader size="md" />
+                      </Center>
+                    ) : (
+                      <Text>No users found</Text>
+                    )}
                   </td>
                 </tr>
               )}

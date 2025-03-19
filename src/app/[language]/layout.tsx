@@ -18,6 +18,7 @@ import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
 import "../globals.css";
 import "@/services/i18n/config";
+import GlobalLoadingProvider from "@/services/loading/global-loading-provider";
 
 type Props = {
   params: Promise<{ language: string }>;
@@ -42,7 +43,6 @@ export default async function RootLayout(props: {
   const params = await props.params;
   const { language } = params;
   const { children } = props;
-
   return (
     <html
       lang={language}
@@ -56,15 +56,17 @@ export default async function RootLayout(props: {
           <MantineProviders>
             <StoreLanguageProvider>
               <ConfirmDialogProvider>
-                <AuthProvider>
-                  <GoogleAuthProvider>
-                    <LeavePageProvider>
-                      <NotificationsProvider>
-                        <ResponsiveAppBar>{children}</ResponsiveAppBar>
-                      </NotificationsProvider>
-                    </LeavePageProvider>
-                  </GoogleAuthProvider>
-                </AuthProvider>
+                <GlobalLoadingProvider>
+                  <AuthProvider>
+                    <GoogleAuthProvider>
+                      <LeavePageProvider>
+                        <NotificationsProvider>
+                          <ResponsiveAppBar>{children}</ResponsiveAppBar>
+                        </NotificationsProvider>
+                      </LeavePageProvider>
+                    </GoogleAuthProvider>
+                  </AuthProvider>
+                </GlobalLoadingProvider>
               </ConfirmDialogProvider>
             </StoreLanguageProvider>
           </MantineProviders>

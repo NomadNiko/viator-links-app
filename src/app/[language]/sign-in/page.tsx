@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getServerTranslation } from "@/services/i18n";
-import MantineSignIn from "./page-content-mantine";
+import MantineSignIn from "./page-content";
 
 type Props = {
   params: Promise<{ language: string }>;

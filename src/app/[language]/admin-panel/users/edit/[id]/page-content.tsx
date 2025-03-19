@@ -9,7 +9,6 @@ import { Container } from "@mantine/core";
 import { Stack, Box, Title, TextInput, Select } from "@mantine/core";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import withPageRequiredAuth from "@/services/auth/with-page-required-auth";
 import { useEffect } from "react";
 import Link from "@/components/link";
 import FormAvatarInput from "@/components/form/avatar-input/form-avatar-input";
@@ -25,6 +24,8 @@ import { useParams } from "next/navigation";
 import { Role, RoleEnum } from "@/services/api/types/role";
 import { Button } from "@/components/mantine/core/Button";
 import { useSnackbar } from "@/components/mantine/feedback/notification-service";
+import RouteGuard from "@/services/auth/route-guard";
+import useGlobalLoading from "@/services/loading/use-global-loading";
 
 type EditUserFormData = {
   email: string;
@@ -121,6 +122,8 @@ function FormEditUser() {
   const { t } = useTranslation("admin-panel-users-edit");
   const validationSchema = useValidationEditUserSchema();
   const { enqueueSnackbar } = useSnackbar();
+  const { setLoading } = useGlobalLoading();
+
   const methods = useForm<EditUserFormData>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -131,55 +134,66 @@ function FormEditUser() {
       photo: undefined,
     },
   });
+
   const { handleSubmit, setError, reset, control } = methods;
 
   const onSubmit = handleSubmit(async (formData) => {
-    const isEmailDirty = methods.getFieldState("email").isDirty;
-    const { data, status } = await fetchPatchUser({
-      id: userId,
-      data: {
-        ...formData,
-        email: isEmailDirty ? formData.email : undefined,
-      },
-    });
-    if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
-      (Object.keys(data.errors) as Array<keyof EditUserFormData>).forEach(
-        (key) => {
-          setError(key, {
-            type: "manual",
-            message: t(
-              `admin-panel-users-edit:inputs.${key}.validation.server.${data.errors[key]}`
-            ),
-          });
-        }
-      );
-      return;
-    }
-    if (status === HTTP_CODES_ENUM.OK) {
-      reset(formData);
-      enqueueSnackbar(t("admin-panel-users-edit:alerts.user.success"), {
-        variant: "success",
+    setLoading(true);
+    try {
+      const isEmailDirty = methods.getFieldState("email").isDirty;
+      const { data, status } = await fetchPatchUser({
+        id: userId,
+        data: {
+          ...formData,
+          email: isEmailDirty ? formData.email : undefined,
+        },
       });
+      if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
+        (Object.keys(data.errors) as Array<keyof EditUserFormData>).forEach(
+          (key) => {
+            setError(key, {
+              type: "manual",
+              message: t(
+                `admin-panel-users-edit:inputs.${key}.validation.server.${data.errors[key]}`
+              ),
+            });
+          }
+        );
+        return;
+      }
+      if (status === HTTP_CODES_ENUM.OK) {
+        reset(formData);
+        enqueueSnackbar(t("admin-panel-users-edit:alerts.user.success"), {
+          variant: "success",
+        });
+      }
+    } finally {
+      setLoading(false);
     }
   });
 
   useEffect(() => {
     const getInitialDataForEdit = async () => {
-      const { status, data: user } = await fetchGetUser({ id: userId });
-      if (status === HTTP_CODES_ENUM.OK) {
-        reset({
-          email: user?.email ?? "",
-          firstName: user?.firstName ?? "",
-          lastName: user?.lastName ?? "",
-          role: {
-            id: Number(user?.role?.id),
-          },
-          photo: user?.photo,
-        });
+      setLoading(true);
+      try {
+        const { status, data: user } = await fetchGetUser({ id: userId });
+        if (status === HTTP_CODES_ENUM.OK) {
+          reset({
+            email: user?.email ?? "",
+            firstName: user?.firstName ?? "",
+            lastName: user?.lastName ?? "",
+            role: {
+              id: Number(user?.role?.id),
+            },
+            photo: user?.photo,
+          });
+        }
+      } finally {
+        setLoading(false);
       }
     };
     getInitialDataForEdit();
-  }, [userId, reset, fetchGetUser]);
+  }, [userId, reset, fetchGetUser, setLoading]);
 
   const roleOptions = [
     {
@@ -199,7 +213,6 @@ function FormEditUser() {
           <Stack gap="md" mb="md" mt="md">
             <Title order={6}>{t("admin-panel-users-edit:title1")}</Title>
             <FormAvatarInput<EditUserFormData> name="photo" testId="photo" />
-
             <Controller
               name="email"
               control={control}
@@ -212,7 +225,6 @@ function FormEditUser() {
                 />
               )}
             />
-
             <Controller
               name="firstName"
               control={control}
@@ -225,7 +237,6 @@ function FormEditUser() {
                 />
               )}
             />
-
             <Controller
               name="lastName"
               control={control}
@@ -238,7 +249,6 @@ function FormEditUser() {
                 />
               )}
             />
-
             <Controller
               name="role"
               control={control}
@@ -254,7 +264,6 @@ function FormEditUser() {
                 />
               )}
             />
-
             <Box>
               <EditUserFormActions />
               <Box ml="xs" style={{ display: "inline-block" }}>
@@ -282,6 +291,8 @@ function FormChangePasswordUser() {
   const { t } = useTranslation("admin-panel-users-edit");
   const validationSchema = useValidationChangePasswordSchema();
   const { enqueueSnackbar } = useSnackbar();
+  const { setLoading } = useGlobalLoading();
+
   const methods = useForm<ChangeUserPasswordFormData>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -289,31 +300,37 @@ function FormChangePasswordUser() {
       passwordConfirmation: "",
     },
   });
+
   const { handleSubmit, setError, reset, control } = methods;
 
   const onSubmit = handleSubmit(async (formData) => {
-    const { data, status } = await fetchPatchUser({
-      id: userId,
-      data: formData,
-    });
-    if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
-      (
-        Object.keys(data.errors) as Array<keyof ChangeUserPasswordFormData>
-      ).forEach((key) => {
-        setError(key, {
-          type: "manual",
-          message: t(
-            `admin-panel-users-edit:inputs.${key}.validation.server.${data.errors[key]}`
-          ),
+    setLoading(true);
+    try {
+      const { data, status } = await fetchPatchUser({
+        id: userId,
+        data: formData,
+      });
+      if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
+        (
+          Object.keys(data.errors) as Array<keyof ChangeUserPasswordFormData>
+        ).forEach((key) => {
+          setError(key, {
+            type: "manual",
+            message: t(
+              `admin-panel-users-edit:inputs.${key}.validation.server.${data.errors[key]}`
+            ),
+          });
         });
-      });
-      return;
-    }
-    if (status === HTTP_CODES_ENUM.OK) {
-      reset();
-      enqueueSnackbar(t("admin-panel-users-edit:alerts.password.success"), {
-        variant: "success",
-      });
+        return;
+      }
+      if (status === HTTP_CODES_ENUM.OK) {
+        reset();
+        enqueueSnackbar(t("admin-panel-users-edit:alerts.password.success"), {
+          variant: "success",
+        });
+      }
+    } finally {
+      setLoading(false);
     }
   });
 
@@ -323,7 +340,6 @@ function FormChangePasswordUser() {
         <form onSubmit={onSubmit}>
           <Stack gap="md" mb="md" mt="md">
             <Title order={6}>{t("admin-panel-users-edit:title2")}</Title>
-
             <Controller
               name="password"
               control={control}
@@ -336,7 +352,6 @@ function FormChangePasswordUser() {
                 />
               )}
             />
-
             <Controller
               name="passwordConfirmation"
               control={control}
@@ -351,7 +366,6 @@ function FormChangePasswordUser() {
                 />
               )}
             />
-
             <Box>
               <ChangePasswordUserFormActions />
               <Box ml="xs" style={{ display: "inline-block" }}>
@@ -374,11 +388,11 @@ function FormChangePasswordUser() {
 
 function EditUser() {
   return (
-    <>
+    <RouteGuard roles={[RoleEnum.ADMIN]}>
       <FormEditUser />
       <FormChangePasswordUser />
-    </>
+    </RouteGuard>
   );
 }
 
-export default withPageRequiredAuth(EditUser);
+export default EditUser;
