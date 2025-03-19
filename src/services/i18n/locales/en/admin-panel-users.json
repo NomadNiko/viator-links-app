@@ -11,7 +11,7 @@
     "edit": "Edit",
     "delete": "Delete",
     "create": "Create User",
-    "changePassword": "Change Password"
+    "changePassword": "Password"
   },
   "confirm": {
     "delete": {
