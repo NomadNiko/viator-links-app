@@ -8,14 +8,8 @@ export const usersQueryKeys = createQueryKeys(["users"], {
   list: () => ({
     key: [],
     sub: {
-      by: ({
-        sort,
-        filter,
-      }: {
-        filter: UserFilterType | undefined;
-        sort?: UserSortType | undefined;
-      }) => ({
-        key: [sort, filter],
+      by: ({ filter }: { filter: UserFilterType | undefined }) => ({
+        key: [filter],
       }),
     },
   }),
@@ -23,7 +17,6 @@ export const usersQueryKeys = createQueryKeys(["users"], {
 
 export const useGetUsersQuery = ({
   filter,
-  sort,
 }: {
   filter?: UserFilterType | undefined;
   sort?: UserSortType | undefined;
@@ -31,7 +24,8 @@ export const useGetUsersQuery = ({
   const getUsersService = useGetUsersService();
 
   const query = useInfiniteQuery({
-    queryKey: usersQueryKeys.list().sub.by({ sort, filter }).key,
+    // Remove sort from query key to avoid refetching when only sort changes
+    queryKey: usersQueryKeys.list().sub.by({ filter }).key,
     initialPageParam: 1,
     queryFn: async ({ pageParam, signal }) => {
       const { status, data } = await getUsersService(
@@ -40,20 +34,19 @@ export const useGetUsersQuery = ({
           page: pageParam,
           limit: 10,
           filters: filter,
-          sort: sort ? [sort] : undefined,
+          // Don't use sort on server since we'll sort client-side
+          sort: undefined,
         },
         {
           signal,
         }
       );
-
       if (status === HTTP_CODES_ENUM.OK) {
         return {
           data: data.data,
           nextPage: data.hasNextPage ? pageParam + 1 : undefined,
         };
       }
-
       // Return empty data if not OK
       return {
         data: [],

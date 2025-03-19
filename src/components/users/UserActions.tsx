@@ -8,11 +8,6 @@ import { useDeleteUsersService } from "@/services/api/services/users";
 import { usersQueryKeys } from "@/app/[language]/admin-panel/users/queries/queries";
 import { InfiniteData, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "@/services/i18n/client";
-import {
-  UserFilterType,
-  UserSortType,
-} from "@/app/[language]/admin-panel/users/user-filter-types";
-import { SortEnum } from "@/services/api/types/sort-type";
 import { Button, Group, Menu, ActionIcon, Text } from "@mantine/core";
 import {
   IconChevronDown,
@@ -45,46 +40,40 @@ function UserActions({ user }: UserActionsProps) {
 
     if (isConfirmed) {
       setMenuOpened(false);
-      const searchParams = new URLSearchParams(window.location.search);
-      const searchParamsFilter = searchParams.get("filter");
-      const searchParamsSort = searchParams.get("sort");
-      let filter: UserFilterType | undefined = undefined;
-      let sort: UserSortType | undefined = {
-        order: SortEnum.DESC,
-        orderBy: "id",
-      };
 
-      if (searchParamsFilter) {
-        filter = JSON.parse(searchParamsFilter);
-      }
-      if (searchParamsSort) {
-        sort = JSON.parse(searchParamsSort);
-      }
-
+      // Define the type for user query data
       type UsersQueryData = InfiniteData<{ nextPage: number; data: User[] }>;
-      const previousData = queryClient.getQueryData<UsersQueryData>(
-        usersQueryKeys.list().sub.by({ sort, filter }).key
+
+      // Get the base query key for users
+      const baseQueryKey = usersQueryKeys.list().key;
+
+      // Cancel any in-flight queries
+      await queryClient.cancelQueries({ queryKey: baseQueryKey });
+
+      // Update all matching queries in the cache regardless of filters or sorting
+      // This approach ensures consistency across all views of user data
+      queryClient.setQueriesData(
+        { queryKey: [baseQueryKey[0]] },
+        (oldData: UsersQueryData | undefined) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              data: page.data.filter((item) => item.id !== user.id),
+            })),
+          };
+        }
       );
 
-      await queryClient.cancelQueries({ queryKey: usersQueryKeys.list().key });
-
-      if (previousData) {
-        const newData = {
-          ...previousData,
-          pages: previousData.pages.map((page) => ({
-            ...page,
-            data: page.data.filter((item) => item.id !== user.id),
-          })),
-        };
-        queryClient.setQueryData(
-          usersQueryKeys.list().sub.by({ sort, filter }).key,
-          newData
-        );
-      }
-
+      // Perform the actual delete operation
       await fetchUserDelete({
         id: user.id,
       });
+
+      // Instead of invalidating queries, we've already updated the cache
+      // This avoids unnecessary refetching while maintaining data consistency
     }
   };
 

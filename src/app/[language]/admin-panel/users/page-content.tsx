@@ -1,3 +1,5 @@
+// Updated page-content.tsx with type fixes
+
 "use client";
 import { RoleEnum } from "@/services/api/types/role";
 import { useTranslation } from "@/services/i18n/client";
@@ -25,7 +27,7 @@ function Users() {
   const { setLoading } = useGlobalLoading();
   const { isMobile } = useResponsive();
 
-  // Initialize sorting state
+  // Initialize sorting state from URL parameters
   const [{ order, orderBy }, setSort] = useState<{
     order: SortEnum;
     orderBy: UsersKeys;
@@ -37,7 +39,7 @@ function Users() {
     return { order: SortEnum.DESC, orderBy: "id" };
   });
 
-  // Handle sort column change
+  // Handle sort column change - client-side only
   const handleRequestSort = useCallback(
     (property: UsersKeys) => {
       const isAsc = orderBy === property && order === SortEnum.ASC;
@@ -45,24 +47,29 @@ function Users() {
       const newOrder = isAsc ? SortEnum.DESC : SortEnum.ASC;
       const newOrderBy = property;
 
+      // Update URL params
       searchParams.set(
         "sort",
         JSON.stringify({ order: newOrder, orderBy: newOrderBy })
       );
 
+      // Update local sort state
       setSort({
         order: newOrder,
         orderBy: newOrderBy,
       });
 
-      router.push(window.location.pathname + "?" + searchParams.toString());
+      // Update URL without causing a navigation/reload
+      router.push(window.location.pathname + "?" + searchParams.toString(), {
+        scroll: false,
+      });
     },
     [orderBy, order, router]
   );
 
-  // Fetch data
+  // Fetch data without sorting params
   const { data, hasNextPage, isFetchingNextPage, fetchNextPage, isLoading } =
-    useGetUsersQuery({ sort: { order, orderBy } });
+    useGetUsersQuery();
 
   // Set global loading state based on query status
   useEffect(() => {
@@ -75,12 +82,88 @@ function Users() {
     fetchNextPage();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // Process users data
+  // Process users data and apply client-side sorting
   const users = useMemo(() => {
-    const result =
+    // Get all users from all pages
+    const allUsers =
       (data?.pages.flatMap((page) => page?.data) as User[]) ?? ([] as User[]);
-    return removeDuplicatesFromArrayObjects(result, "id");
-  }, [data]);
+
+    // Remove duplicates
+    const uniqueUsers = removeDuplicatesFromArrayObjects(allUsers, "id");
+
+    // Create a sortable copy of the array
+    return [...uniqueUsers].sort((a, b) => {
+      // Handle cases where the property might be undefined or null
+      const aValue = a[orderBy];
+      const bValue = b[orderBy];
+
+      // If either value is undefined or null, place it at the end
+      if (aValue === undefined || aValue === null)
+        return order === SortEnum.ASC ? 1 : -1;
+      if (bValue === undefined || bValue === null)
+        return order === SortEnum.ASC ? -1 : 1;
+
+      // Compare string values case-insensitively
+      if (typeof aValue === "string" && typeof bValue === "string") {
+        return order === SortEnum.ASC
+          ? aValue.localeCompare(bValue, undefined, { sensitivity: "base" })
+          : bValue.localeCompare(aValue, undefined, { sensitivity: "base" });
+      }
+
+      // Handle dates - check if values are actually date strings before trying to convert
+      if (
+        typeof aValue === "string" &&
+        typeof bValue === "string" &&
+        !isNaN(Date.parse(aValue)) &&
+        !isNaN(Date.parse(bValue))
+      ) {
+        const dateA = new Date(aValue).getTime();
+        const dateB = new Date(bValue).getTime();
+        return order === SortEnum.ASC ? dateA - dateB : dateB - dateA;
+      }
+
+      // Handle numeric comparisons
+      if (typeof aValue === "number" && typeof bValue === "number") {
+        return order === SortEnum.ASC ? aValue - bValue : bValue - aValue;
+      }
+
+      // Handle complex objects - compare by id or name if available
+      if (
+        typeof aValue === "object" &&
+        aValue !== null &&
+        typeof bValue === "object" &&
+        bValue !== null
+      ) {
+        // If objects have id property
+        if ("id" in aValue && "id" in bValue) {
+          const aId = String(aValue.id);
+          const bId = String(bValue.id);
+          return order === SortEnum.ASC
+            ? aId.localeCompare(bId)
+            : bId.localeCompare(aId);
+        }
+
+        // If objects have name property
+        if (
+          "name" in aValue &&
+          "name" in bValue &&
+          typeof aValue.name === "string" &&
+          typeof bValue.name === "string"
+        ) {
+          return order === SortEnum.ASC
+            ? aValue.name.localeCompare(bValue.name)
+            : bValue.name.localeCompare(aValue.name);
+        }
+      }
+
+      // Convert to strings as last resort
+      const aString = String(aValue);
+      const bString = String(bValue);
+      return order === SortEnum.ASC
+        ? aString.localeCompare(bString)
+        : bString.localeCompare(aString);
+    });
+  }, [data, orderBy, order]);
 
   return (
     <RouteGuard roles={[RoleEnum.ADMIN]}>
@@ -101,7 +184,6 @@ function Users() {
               </Group>
             </Group>
           </Grid.Col>
-
           {/* Responsive sorting controls for mobile */}
           {isMobile && (
             <Grid.Col span={12} pb="xs">
@@ -112,7 +194,6 @@ function Users() {
               />
             </Grid.Col>
           )}
-
           {/* Users list - responsive between table and cards */}
           <Grid.Col span={12} mb="sm">
             {isMobile ? (
