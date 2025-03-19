@@ -12,7 +12,7 @@ import {
   UserSortType,
 } from "@/app/[language]/admin-panel/users/user-filter-types";
 import { SortEnum } from "@/services/api/types/sort-type";
-import { Button } from "@/components/mantine/core/Button";
+import { Button } from "@mantine/core";
 import { Group, Menu, ActionIcon } from "@mantine/core";
 import { IconChevronDown, IconTrash } from "@tabler/icons-react";
 import Link from "@/components/link";

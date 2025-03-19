@@ -1,4 +1,4 @@
-import { Button } from "@/components/mantine/core/Button";
+import { Button } from "@mantine/core";
 import { useFormState } from "react-hook-form";
 import useLeavePage from "@/services/leave-page/use-leave-page";
 import { Group } from "@mantine/core";

@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@/components/mantine/core/Button";
+import { Button } from "@mantine/core";
 import { Modal } from "@/components/mantine/feedback/Modal";
 import { Text } from "@mantine/core";
 import {

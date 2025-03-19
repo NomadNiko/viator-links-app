@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@/components/mantine/core/Button";
+import { Button } from "@mantine/core";
 import GuestRouteGuard from "@/services/auth/guest-route-guard";
 import {
   useForm,

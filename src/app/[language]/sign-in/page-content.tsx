@@ -10,10 +10,11 @@ import useAuthTokens from "@/services/auth/use-auth-tokens";
 import GuestRouteGuard from "@/services/auth/guest-route-guard";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { IS_SIGN_UP_ENABLED } from "@/services/auth/config";
-import { Button } from "@/components/mantine/core/Button";
+import { Button } from "@mantine/core";
 import { Container } from "@mantine/core";
 import { Box, Divider, Stack, Text, TextInput } from "@mantine/core";
 import useGlobalLoading from "@/services/loading/use-global-loading";
+import Link from "@/components/link";
 
 type SignInFormData = {
   email: string;
@@ -138,6 +139,7 @@ function SignIn() {
                   <Button
                     variant="outlined"
                     color="gray"
+                    component={Link}
                     href="/sign-up"
                     data-testid="create-account"
                   >

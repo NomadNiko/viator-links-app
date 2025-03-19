@@ -27,18 +27,22 @@ function UserTableHeader({
       <tr>
         {/* Avatar column - fixed width, centered */}
         <th style={{ width: 50, textAlign: "center" }}></th>
-
         {/* Name column - fixed width, left-aligned */}
-        <th style={{ width: 200, textAlign: "left" }}>
+        <TableSortCell<User>
+          width={200} // Set explicit width for email column
+          orderBy={orderBy}
+          order={order}
+          column="email"
+          handleRequestSort={handleRequestSort}
+        >
           {tUsers("admin-panel-users:table.column2")}
-        </th>
-
+        </TableSortCell>
         {/* Email column - flexible width, sortable, left-aligned */}
         <TableSortCell<User>
           width={250} // Set explicit width for email column
           orderBy={orderBy}
           order={order}
-          column="email"
+          column="firstName"
           handleRequestSort={handleRequestSort}
         >
           {tUsers("admin-panel-users:table.column3")}

@@ -5,7 +5,7 @@ import Link from "@/components/link";
 import { getNavigationConfig } from "@/config/navigation";
 import useAuth from "@/services/auth/use-auth";
 import { IS_SIGN_UP_ENABLED } from "@/services/auth/config";
-import { Button } from "@/components/mantine/core/Button";
+import { Button } from "@mantine/core";
 
 interface MobileNavigationProps {
   onCloseMenu?: () => void;

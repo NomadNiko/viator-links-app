@@ -22,7 +22,7 @@ import {
 } from "@/services/api/services/users";
 import { useParams } from "next/navigation";
 import { Role, RoleEnum } from "@/services/api/types/role";
-import { Button } from "@/components/mantine/core/Button";
+import { Button } from "@mantine/core";
 import { useSnackbar } from "@/components/mantine/feedback/notification-service";
 import RouteGuard from "@/services/auth/route-guard";
 import useGlobalLoading from "@/services/loading/use-global-loading";

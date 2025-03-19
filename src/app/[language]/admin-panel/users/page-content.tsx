@@ -9,7 +9,7 @@ import removeDuplicatesFromArrayObjects from "@/services/helpers/remove-duplicat
 import { useRouter, useSearchParams } from "next/navigation";
 import { SortEnum } from "@/services/api/types/sort-type";
 import { User } from "@/services/api/types/user";
-import { Button } from "@/components/mantine/core/Button";
+import { Button } from "@mantine/core";
 import Link from "@/components/link";
 import UsersTable from "@/components/users/UsersTable";
 import RouteGuard from "@/services/auth/route-guard";
