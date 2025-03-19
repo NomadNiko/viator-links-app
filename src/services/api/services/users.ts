@@ -1,13 +1,15 @@
-import { useCallback } from "react";
-import useFetch from "../use-fetch";
-import { API_URL } from "../config";
-import wrapperFetchJsonResponse from "../wrapper-fetch-json-response";
 import { User } from "../types/user";
 import { InfinityPaginationType } from "../types/infinity-pagination";
 import { Role } from "../types/role";
 import { SortEnum } from "../types/sort-type";
-import { RequestConfigType } from "./types/request-config";
+import {
+  createGetService,
+  createPostService,
+  createPatchService,
+  createDeleteService,
+} from "../factory";
 
+// Type definitions
 export type UsersRequest = {
   page: number;
   limit: number;
@@ -22,49 +24,11 @@ export type UsersRequest = {
 
 export type UsersResponse = InfinityPaginationType<User>;
 
-export function useGetUsersService() {
-  const fetch = useFetch();
-
-  return useCallback(
-    (data: UsersRequest, requestConfig?: RequestConfigType) => {
-      const requestUrl = new URL(`${API_URL}/v1/users`);
-      requestUrl.searchParams.append("page", data.page.toString());
-      requestUrl.searchParams.append("limit", data.limit.toString());
-      if (data.filters) {
-        requestUrl.searchParams.append("filters", JSON.stringify(data.filters));
-      }
-      if (data.sort) {
-        requestUrl.searchParams.append("sort", JSON.stringify(data.sort));
-      }
-
-      return fetch(requestUrl, {
-        method: "GET",
-        ...requestConfig,
-      }).then(wrapperFetchJsonResponse<UsersResponse>);
-    },
-    [fetch]
-  );
-}
-
 export type UserRequest = {
   id: User["id"];
 };
 
 export type UserResponse = User;
-
-export function useGetUserService() {
-  const fetch = useFetch();
-
-  return useCallback(
-    (data: UserRequest, requestConfig?: RequestConfigType) => {
-      return fetch(`${API_URL}/v1/users/${data.id}`, {
-        method: "GET",
-        ...requestConfig,
-      }).then(wrapperFetchJsonResponse<UserResponse>);
-    },
-    [fetch]
-  );
-}
 
 export type UserPostRequest = Pick<
   User,
@@ -74,21 +38,6 @@ export type UserPostRequest = Pick<
 };
 
 export type UserPostResponse = User;
-
-export function usePostUserService() {
-  const fetch = useFetch();
-
-  return useCallback(
-    (data: UserPostRequest, requestConfig?: RequestConfigType) => {
-      return fetch(`${API_URL}/v1/users`, {
-        method: "POST",
-        body: JSON.stringify(data),
-        ...requestConfig,
-      }).then(wrapperFetchJsonResponse<UserPostResponse>);
-    },
-    [fetch]
-  );
-}
 
 export type UserPatchRequest = {
   id: User["id"];
@@ -101,37 +50,55 @@ export type UserPatchRequest = {
 
 export type UserPatchResponse = User;
 
-export function usePatchUserService() {
-  const fetch = useFetch();
-
-  return useCallback(
-    (data: UserPatchRequest, requestConfig?: RequestConfigType) => {
-      return fetch(`${API_URL}/v1/users/${data.id}`, {
-        method: "PATCH",
-        body: JSON.stringify(data.data),
-        ...requestConfig,
-      }).then(wrapperFetchJsonResponse<UserPatchResponse>);
-    },
-    [fetch]
-  );
-}
-
 export type UsersDeleteRequest = {
   id: User["id"];
 };
 
 export type UsersDeleteResponse = undefined;
 
-export function useDeleteUsersService() {
-  const fetch = useFetch();
+// Format query params for users list endpoint
+const formatUsersQueryParams = (params: UsersRequest) => {
+  const searchParams = new URLSearchParams();
 
-  return useCallback(
-    (data: UsersDeleteRequest, requestConfig?: RequestConfigType) => {
-      return fetch(`${API_URL}/v1/users/${data.id}`, {
-        method: "DELETE",
-        ...requestConfig,
-      }).then(wrapperFetchJsonResponse<UsersDeleteResponse>);
-    },
-    [fetch]
-  );
-}
+  searchParams.append("page", params.page.toString());
+  searchParams.append("limit", params.limit.toString());
+
+  if (params.filters) {
+    searchParams.append("filters", JSON.stringify(params.filters));
+  }
+
+  if (params.sort) {
+    searchParams.append("sort", JSON.stringify(params.sort));
+  }
+
+  return searchParams.toString();
+};
+
+// API Services using the new factory pattern
+export const useGetUsersService = createGetService<
+  UsersResponse,
+  void,
+  UsersRequest
+>("/v1/users", {
+  formatQueryParams: formatUsersQueryParams,
+});
+
+export const useGetUserService = createGetService<UserResponse, UserRequest>(
+  (params) => `/v1/users/${params.id}`
+);
+
+export const usePostUserService = createPostService<
+  UserPostRequest,
+  UserPostResponse
+>("/v1/users");
+
+export const usePatchUserService = createPatchService<
+  UserPatchRequest["data"],
+  UserPatchResponse,
+  { id: User["id"] }
+>((params) => `/v1/users/${params.id}`);
+
+export const useDeleteUsersService = createDeleteService<
+  UsersDeleteResponse,
+  UsersDeleteRequest
+>((params) => `/v1/users/${params.id}`);

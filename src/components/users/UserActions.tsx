@@ -1,3 +1,4 @@
+// src/components/users/UserActions.tsx
 "use client";
 import { useState } from "react";
 import { User } from "@/services/api/types/user";
@@ -12,13 +13,15 @@ import {
   UserSortType,
 } from "@/app/[language]/admin-panel/users/user-filter-types";
 import { SortEnum } from "@/services/api/types/sort-type";
-import { Button } from "@mantine/core";
-import { Group, Menu, ActionIcon } from "@mantine/core";
-import { IconChevronDown, IconTrash } from "@tabler/icons-react";
+import { Button, Group, Menu, ActionIcon, Text } from "@mantine/core";
+import { IconChevronDown, IconTrash, IconEdit } from "@tabler/icons-react";
 import Link from "@/components/link";
+import { useResponsive } from "@/services/responsive/use-responsive";
+
 interface UserActionsProps {
   user: User;
 }
+
 function UserActions({ user }: UserActionsProps) {
   const [menuOpened, setMenuOpened] = useState(false);
   const { user: authUser } = useAuth();
@@ -27,32 +30,41 @@ function UserActions({ user }: UserActionsProps) {
   const queryClient = useQueryClient();
   const canDelete = user.id !== authUser?.id;
   const { t: tUsers } = useTranslation("admin-panel-users");
+  const { isMobile } = useResponsive();
+
   const handleDelete = async () => {
     const isConfirmed = await confirmDialog({
       title: tUsers("admin-panel-users:confirm.delete.title"),
       message: tUsers("admin-panel-users:confirm.delete.message"),
     });
+
     if (isConfirmed) {
       setMenuOpened(false);
       const searchParams = new URLSearchParams(window.location.search);
       const searchParamsFilter = searchParams.get("filter");
       const searchParamsSort = searchParams.get("sort");
+
       let filter: UserFilterType | undefined = undefined;
       let sort: UserSortType | undefined = {
         order: SortEnum.DESC,
         orderBy: "id",
       };
+
       if (searchParamsFilter) {
         filter = JSON.parse(searchParamsFilter);
       }
+
       if (searchParamsSort) {
         sort = JSON.parse(searchParamsSort);
       }
+
       type UsersQueryData = InfiniteData<{ nextPage: number; data: User[] }>;
       const previousData = queryClient.getQueryData<UsersQueryData>(
         usersQueryKeys.list().sub.by({ sort, filter }).key
       );
+
       await queryClient.cancelQueries({ queryKey: usersQueryKeys.list().key });
+
       if (previousData) {
         const newData = {
           ...previousData,
@@ -61,17 +73,37 @@ function UserActions({ user }: UserActionsProps) {
             data: page.data.filter((item) => item.id !== user.id),
           })),
         };
+
         queryClient.setQueryData(
           usersQueryKeys.list().sub.by({ sort, filter }).key,
           newData
         );
       }
+
       await fetchUserDelete({
         id: user.id,
       });
     }
   };
-  // If we can't delete, just show the edit button
+
+  // If we can't delete and we're on mobile, just show a compact edit button
+  if (!canDelete && isMobile) {
+    return (
+      <Button
+        size="xs"
+        variant="light"
+        component={Link}
+        href={`/admin-panel/users/edit/${user.id}`}
+      >
+        <Group gap={4} align="center" wrap="nowrap">
+          <IconEdit size={14} />
+          <Text size="xs">{tUsers("admin-panel-users:actions.edit")}</Text>
+        </Group>
+      </Button>
+    );
+  }
+
+  // If we can't delete and we're on desktop, show normal edit button
   if (!canDelete) {
     return (
       <Button
@@ -83,7 +115,33 @@ function UserActions({ user }: UserActionsProps) {
       </Button>
     );
   }
-  // Otherwise show a button with dropdown
+
+  // In mobile view with delete capability, show compact buttons
+  if (isMobile) {
+    return (
+      <Group gap="xs" wrap="nowrap">
+        <Button
+          size="xs"
+          variant="light"
+          component={Link}
+          href={`/admin-panel/users/edit/${user.id}`}
+        >
+          <Group gap={4} align="center" wrap="nowrap">
+            <IconEdit size={14} />
+            <Text size="xs">{tUsers("admin-panel-users:actions.edit")}</Text>
+          </Group>
+        </Button>
+        <Button size="xs" variant="light" color="red" onClick={handleDelete}>
+          <Group gap={4} align="center" wrap="nowrap">
+            <IconTrash size={14} />
+            <Text size="xs">{tUsers("admin-panel-users:actions.delete")}</Text>
+          </Group>
+        </Button>
+      </Group>
+    );
+  }
+
+  // Otherwise show desktop view with dropdown
   return (
     <Group gap="xs">
       <Button
@@ -112,4 +170,5 @@ function UserActions({ user }: UserActionsProps) {
     </Group>
   );
 }
+
 export default UserActions;

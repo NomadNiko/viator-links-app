@@ -28,13 +28,14 @@ export const useGetUsersQuery = ({
   filter?: UserFilterType | undefined;
   sort?: UserSortType | undefined;
 } = {}) => {
-  const fetch = useGetUsersService();
+  const getUsersService = useGetUsersService();
 
   const query = useInfiniteQuery({
     queryKey: usersQueryKeys.list().sub.by({ sort, filter }).key,
     initialPageParam: 1,
     queryFn: async ({ pageParam, signal }) => {
-      const { status, data } = await fetch(
+      const { status, data } = await getUsersService(
+        undefined,
         {
           page: pageParam,
           limit: 10,
@@ -45,6 +46,7 @@ export const useGetUsersQuery = ({
           signal,
         }
       );
+
       if (status === HTTP_CODES_ENUM.OK) {
         return {
           data: data.data,

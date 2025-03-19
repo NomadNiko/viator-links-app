@@ -141,13 +141,16 @@ function FormEditUser() {
     setLoading(true);
     try {
       const isEmailDirty = methods.getFieldState("email").isDirty;
-      const { data, status } = await fetchPatchUser({
-        id: userId,
-        data: {
-          ...formData,
+      const { data, status } = await fetchPatchUser(
+        {
           email: isEmailDirty ? formData.email : undefined,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          role: formData.role,
+          photo: formData.photo,
         },
-      });
+        { id: userId }
+      );
       if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
         (Object.keys(data.errors) as Array<keyof EditUserFormData>).forEach(
           (key) => {
@@ -306,10 +309,10 @@ function FormChangePasswordUser() {
   const onSubmit = handleSubmit(async (formData) => {
     setLoading(true);
     try {
-      const { data, status } = await fetchPatchUser({
-        id: userId,
-        data: formData,
-      });
+      const { data, status } = await fetchPatchUser(
+        { password: formData.password },
+        { id: userId }
+      );
       if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
         (
           Object.keys(data.errors) as Array<keyof ChangeUserPasswordFormData>
