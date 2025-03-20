@@ -9,8 +9,8 @@ import {
   Text,
   Center,
   Loader,
+  Table,
 } from "@mantine/core";
-import { Table } from "@/components/mantine/data/Table"; // Import from custom component
 import UserTableHeader from "./UserTableHeader";
 import UserTableRow from "./UserTableRow";
 import { useTranslation } from "@/services/i18n/client";

@@ -1,4 +1,3 @@
-// src/components/users/UserTableHeader.tsx
 import { Loader } from "@mantine/core";
 import { SortEnum } from "@/services/api/types/sort-type";
 import { User } from "@/services/api/types/user";
@@ -22,6 +21,7 @@ function UserTableHeader({
   isFetchingNextPage,
 }: UserTableHeaderProps) {
   const { t: tUsers } = useTranslation("admin-panel-users");
+
   return (
     <>
       <tr>
@@ -47,7 +47,6 @@ function UserTableHeader({
         >
           {tUsers("admin-panel-users:table.column3")}
         </TableSortCell>
-
         {/* Role column - fixed width, centered */}
         <TableSortCell<User>
           width={100}
@@ -58,11 +57,9 @@ function UserTableHeader({
         >
           {tUsers("admin-panel-users:table.column4")}
         </TableSortCell>
-
         {/* Actions column - fixed width, centered */}
         <th style={{ width: 375, textAlign: "right" }}></th>
       </tr>
-
       {/* Loading indicator row */}
       {isFetchingNextPage && (
         <tr>
