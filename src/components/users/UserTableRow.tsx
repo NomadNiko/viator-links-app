@@ -40,7 +40,7 @@ function UserTableRow({ user }: UserTableRowProps) {
       <td style={{ width: 100, textAlign: "left" }}>
         {tRoles(`role.${user?.role?.id}`)}
       </td>
-      <td style={{ width: 375, textAlign: "center" }}>
+      <td style={{ width: 375, textAlign: "right" }}>
         {user && <UserActions user={user} />}
       </td>
     </>

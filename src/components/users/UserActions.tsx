@@ -70,9 +70,9 @@ function UserActions({ user }: UserActionsProps) {
 
   // Desktop view styling - reduced dimensions as requested
   const desktopButtonStyle = {
-    width: "92px",
+    width: "88px",
     height: "24px",
-    padding: "0 8px",
+    padding: "0 6px",
     overflow: "hidden",
     whiteSpace: "nowrap" as const,
     textOverflow: "ellipsis",

@@ -167,7 +167,7 @@ function Users() {
 
   return (
     <RouteGuard roles={[RoleEnum.ADMIN]}>
-      <Container w={isMobile ? "100%" : "867px"}>
+      <Container w={isMobile ? "100%" : "888px"}>
         <Grid pt="md">
           {/* Header with title and actions */}
           <Grid.Col span={12}>

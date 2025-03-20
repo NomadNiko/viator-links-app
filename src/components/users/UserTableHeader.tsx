@@ -49,12 +49,18 @@ function UserTableHeader({
         </TableSortCell>
 
         {/* Role column - fixed width, centered */}
-        <th style={{ width: 100, textAlign: "left" }}>
+        <TableSortCell<User>
+          width={100}
+          orderBy={orderBy}
+          order={order}
+          column="role"
+          handleRequestSort={handleRequestSort}
+        >
           {tUsers("admin-panel-users:table.column4")}
-        </th>
+        </TableSortCell>
 
         {/* Actions column - fixed width, centered */}
-        <th style={{ width: 375, textAlign: "center" }}></th>
+        <th style={{ width: 375, textAlign: "right" }}></th>
       </tr>
 
       {/* Loading indicator row */}
