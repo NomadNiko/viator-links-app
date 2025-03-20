@@ -1,3 +1,4 @@
+// src/components/users/UserCard.tsx
 import {
   Card,
   Text,
@@ -6,8 +7,8 @@ import {
   Badge,
   Box,
   useMantineColorScheme,
+  Avatar, // Import Avatar directly from Mantine
 } from "@mantine/core";
-import { Avatar } from "@/components/mantine/data/Avatar";
 import { User } from "@/services/api/types/user";
 import UserActions from "./UserActions";
 import { useTranslation } from "@/services/i18n/client";
@@ -23,8 +24,8 @@ export function UserCard({ user }: UserCardProps) {
   // Use the correct colorScheme from hook
   const shadowColor =
     colorScheme === "dark"
-      ? "rgba(114, 180, 255, 0.4)" // Light blue for dark mode
-      : "rgba(0, 100, 255, 0.4)"; // Darker blue for light mode
+      ? "rgba(126, 178, 236, 0.47)" // Light blue for dark mode
+      : "rgba(61, 106, 255, 0.4)"; // Darker blue for light mode
 
   return (
     <Card shadow="sm" p="md" radius="md" withBorder mb="sm">

@@ -2,8 +2,14 @@
 import { useFileUploadService } from "@/services/api/services/files";
 import { FileEntity } from "@/services/api/types/file-entity";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
-import { Avatar } from "@/components/mantine/data/Avatar";
-import { Box, Text, Paper, ActionIcon, useMantineTheme } from "@mantine/core";
+import {
+  Box,
+  Text,
+  Paper,
+  ActionIcon,
+  useMantineTheme,
+  Avatar,
+} from "@mantine/core";
 import { Button } from "@mantine/core";
 import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";

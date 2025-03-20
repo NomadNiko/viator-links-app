@@ -1,7 +1,6 @@
 "use client";
 import useAuth from "@/services/auth/use-auth";
-import { Container, Group, Stack, Box, Title } from "@mantine/core";
-import { Avatar } from "@/components/mantine/data/Avatar";
+import { Container, Group, Stack, Box, Title, Avatar } from "@mantine/core";
 import { Button } from "@mantine/core";
 import Link from "@/components/link";
 import { useTranslation } from "@/services/i18n/client";
