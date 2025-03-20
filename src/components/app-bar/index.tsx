@@ -1,7 +1,7 @@
 "use client";
 import { AppShell, Burger, Group, Container } from "@mantine/core";
 import { useState } from "react";
-import { SwitchThemeButton } from "@/components/mantine/theme/SwitchThemeButton";
+import { SwitchThemeButton } from "@/components/theme/SwitchThemeButton";
 import Logo from "./logo";
 import DesktopNavigation from "./desktop-navigation";
 import MobileNavigation from "./mobile-navigation";
