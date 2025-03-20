@@ -12,21 +12,21 @@ function UserTableRow({ user }: UserTableRowProps) {
 
   return (
     <>
-      <td style={{ width: 60, textAlign: "center" }}>
+      <td style={{ width: 60, textAlign: "left" }}>
         <Avatar
           alt={user?.firstName + " " + user?.lastName}
           src={user?.photo?.path}
           size="md"
         />
       </td>
-      <td style={{ width: 200 }}>
+      <td style={{ width: 200, textAlign: "left" }}>
         {user?.firstName} {user?.lastName}
       </td>
-      <td>{user?.email}</td>
-      <td style={{ width: 100, textAlign: "center" }}>
+      <td style={{ width: 200, textAlign: "left" }}>{user?.email}</td>
+      <td style={{ width: 100, textAlign: "left" }}>
         {tRoles(`role.${user?.role?.id}`)}
       </td>
-      <td style={{ width: 300, textAlign: "left" }}>
+      <td style={{ width: 375, textAlign: "center" }}>
         {user && <UserActions user={user} />}
       </td>
     </>

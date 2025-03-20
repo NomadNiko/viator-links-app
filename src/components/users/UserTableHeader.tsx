@@ -29,32 +29,32 @@ function UserTableHeader({
         <th style={{ width: 50, textAlign: "center" }}></th>
         {/* Name column - fixed width, left-aligned */}
         <TableSortCell<User>
-          width={200} // Set explicit width for email column
+          width={200}
           orderBy={orderBy}
           order={order}
-          column="email"
+          column="firstName"
           handleRequestSort={handleRequestSort}
         >
           {tUsers("admin-panel-users:table.column2")}
         </TableSortCell>
         {/* Email column - flexible width, sortable, left-aligned */}
         <TableSortCell<User>
-          width={250} // Set explicit width for email column
+          width={200}
           orderBy={orderBy}
           order={order}
-          column="firstName"
+          column="email"
           handleRequestSort={handleRequestSort}
         >
           {tUsers("admin-panel-users:table.column3")}
         </TableSortCell>
 
         {/* Role column - fixed width, centered */}
-        <th style={{ width: 80, textAlign: "center" }}>
+        <th style={{ width: 100, textAlign: "left" }}>
           {tUsers("admin-panel-users:table.column4")}
         </th>
 
         {/* Actions column - fixed width, centered */}
-        <th style={{ width: 130, textAlign: "center" }}></th>
+        <th style={{ width: 375, textAlign: "center" }}></th>
       </tr>
 
       {/* Loading indicator row */}
