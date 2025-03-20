@@ -49,7 +49,12 @@ function FormActions() {
   const { t } = useTranslation("password-change");
   const { isSubmitting } = useFormState();
   return (
-    <Button type="submit" disabled={isSubmitting} data-testid="set-password">
+    <Button
+      type="submit"
+      disabled={isSubmitting}
+      data-testid="set-password"
+      size="compact-sm"
+    >
       {t("password-change:actions.submit")}
     </Button>
   );

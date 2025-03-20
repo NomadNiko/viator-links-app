@@ -65,7 +65,12 @@ function FormActions() {
   const { t } = useTranslation("sign-up");
   const { isSubmitting } = useFormState();
   return (
-    <Button type="submit" disabled={isSubmitting} data-testid="sign-up-submit">
+    <Button
+      type="submit"
+      disabled={isSubmitting}
+      data-testid="sign-up-submit"
+      size="compact-sm"
+    >
       {t("sign-up:actions.submit")}
     </Button>
   );
@@ -137,7 +142,7 @@ function Form() {
       <Container size="xs">
         <form onSubmit={onSubmit}>
           <Stack gap="md" mb="md" mt="md">
-            <Title order={6}>{t("sign-up:title")}</Title>
+            <Title order={4}>{t("sign-up:title")}</Title>
             <Controller
               name="firstName"
               control={control}
@@ -198,6 +203,7 @@ function Form() {
                   component={Link}
                   data-testid="login"
                   href="/sign-in"
+                  size="compact-sm"
                 >
                   {t("sign-up:actions.accountAlreadyExists")}
                 </Button>

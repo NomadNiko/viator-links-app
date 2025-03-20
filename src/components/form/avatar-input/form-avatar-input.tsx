@@ -150,6 +150,7 @@ function AvatarInput(props: AvatarInputProps) {
           component="label"
           loading={isLoading}
           data-testid={props.testId}
+          size="compact-sm"
         >
           {isLoading
             ? t("common:loading")

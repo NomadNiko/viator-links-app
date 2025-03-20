@@ -143,7 +143,11 @@ function ImagePicker(props: ImagePickerProps) {
         </Box>
       )}
       <Group mt={props.value ? 0 : theme.spacing.md}>
-        <Button loading={isLoading} data-testid={props.testId}>
+        <Button
+          loading={isLoading}
+          data-testid={props.testId}
+          size="compact-sm"
+        >
           {isLoading
             ? t("common:loading")
             : t("common:formInputs.singleImageInput.selectFile")}

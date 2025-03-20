@@ -57,11 +57,21 @@ const AuthSection = () => {
   return (
     <Box style={{ display: "flex" }}>
       <Group>
-        <Button component={Link} href="/sign-in" variant="subtle">
+        <Button
+          component={Link}
+          href="/sign-in"
+          variant="subtle"
+          size="compact-sm"
+        >
           {t("common:navigation.signIn")}
         </Button>
         {IS_SIGN_UP_ENABLED && (
-          <Button component={Link} href="/sign-up" variant="filled">
+          <Button
+            component={Link}
+            href="/sign-up"
+            variant="filled"
+            size="compact-sm"
+          >
             {t("common:navigation.signUp")}
           </Button>
         )}

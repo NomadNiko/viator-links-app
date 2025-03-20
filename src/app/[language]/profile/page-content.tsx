@@ -40,6 +40,7 @@ function Profile() {
               component={Link}
               href="/profile/edit"
               data-testid="edit-profile"
+              size="compact-sm"
             >
               {t("profile:actions.edit")}
             </Button>

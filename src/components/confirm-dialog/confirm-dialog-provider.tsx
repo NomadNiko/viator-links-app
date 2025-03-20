@@ -75,10 +75,10 @@ function ConfirmDialogProvider({ children }: { children: React.ReactNode }) {
         maxWidth="sm"
         centered
         actions={[
-          <Button key="cancel" onClick={onCancel}>
+          <Button key="cancel" onClick={onCancel} size="compact-sm">
             {confirmDialogInfo.cancelButtonText}
           </Button>,
-          <Button key="confirm" onClick={onSuccess} autoFocus>
+          <Button key="confirm" onClick={onSuccess} autoFocus size="compact-sm">
             {confirmDialogInfo.successButtonText}
           </Button>,
         ]}

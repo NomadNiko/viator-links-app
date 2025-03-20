@@ -178,6 +178,7 @@ function Users() {
                   component={Link}
                   href="/admin-panel/users/create"
                   color="green"
+                  size="compact-sm"
                 >
                   {tUsers("admin-panel-users:actions.create")}
                 </Button>

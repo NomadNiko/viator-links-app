@@ -87,7 +87,7 @@ function CreateUserFormActions() {
   const { isSubmitting, isDirty } = useFormState();
   useLeavePage(isDirty);
   return (
-    <Button type="submit" disabled={isSubmitting}>
+    <Button type="submit" disabled={isSubmitting} size="compact-sm">
       {t("admin-panel-users-create:actions.submit")}
     </Button>
   );
@@ -254,11 +254,12 @@ function FormCreateUser() {
             <Box>
               <CreateUserFormActions />
               <Button
-                variant="outlined"
-                color="gray"
+                variant="light"
+                color="red"
                 component={Link}
                 href="/admin-panel/users"
                 ml="xs"
+                size="compact-sm"
               >
                 {t("admin-panel-users-create:actions.cancel")}
               </Button>

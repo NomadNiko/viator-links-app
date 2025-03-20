@@ -14,7 +14,9 @@ import { Button } from "@mantine/core";
 import { Container } from "@mantine/core";
 import { Box, Divider, Stack, Text, TextInput } from "@mantine/core";
 import useGlobalLoading from "@/services/loading/use-global-loading";
+import { isGoogleAuthEnabled } from "@/services/social-auth/google/google-config";
 import Link from "@/components/link";
+import SocialAuth from "@/services/social-auth/social-auth";
 
 type SignInFormData = {
   email: string;
@@ -132,6 +134,7 @@ function SignIn() {
                   disabled={isSubmitting}
                   data-testid="sign-in-submit"
                   mr="xs"
+                  size="compact-sm"
                 >
                   {t("sign-in:actions.submit")}
                 </Button>
@@ -142,12 +145,18 @@ function SignIn() {
                     component={Link}
                     href="/sign-up"
                     data-testid="create-account"
+                    size="compact-sm"
                   >
                     {t("sign-in:actions.createAccount")}
                   </Button>
                 )}
               </Box>
-              <Divider label={t("sign-in:or")} labelPosition="center" />
+              {[isGoogleAuthEnabled].some(Boolean) && (
+                <>
+                  <Divider label={t("sign-up:or")} labelPosition="center" />
+                  <SocialAuth />
+                </>
+              )}
             </Stack>
           </form>
         </Container>

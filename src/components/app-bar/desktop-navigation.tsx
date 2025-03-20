@@ -29,6 +29,7 @@ const DesktopNavigation = ({ onCloseMenu }: DesktopNavigationProps) => {
             variant="subtle"
             component={Link}
             href={item.path}
+            size="compact-sm"
           >
             {t(item.label)}
           </Button>

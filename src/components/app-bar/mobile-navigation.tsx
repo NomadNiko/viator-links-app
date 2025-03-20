@@ -58,7 +58,7 @@ const MobileNavigation = ({ onCloseMenu }: MobileNavigationProps) => {
             <Button
               component={Link}
               href="/sign-up"
-              variant="filled"
+              variant="subtle"
               fullWidth
               onClick={onCloseMenu}
             >

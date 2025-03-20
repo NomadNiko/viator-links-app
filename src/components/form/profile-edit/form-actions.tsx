@@ -21,15 +21,21 @@ export function FormActions({
   useLeavePage(isDirty);
   return (
     <Group gap="md">
-      <Button type="submit" disabled={isSubmitting} data-testid={testId}>
+      <Button
+        type="submit"
+        disabled={isSubmitting}
+        data-testid={testId}
+        size="compact-sm"
+      >
         {submitLabel}
       </Button>
       <Button
-        variant="outline"
-        color="gray"
+        variant="light"
+        color="red"
         component={Link}
         href={cancelHref}
         data-testid={cancelTestId}
+        size="compact-sm"
       >
         {cancelLabel}
       </Button>
