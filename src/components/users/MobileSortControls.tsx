@@ -52,7 +52,9 @@ export function MobileSortControls({
       <Menu.Target>
         <Button variant="light" fullWidth>
           <Group justify="apart" style={{ width: "100%" }}>
-            <Text>Sort by: {currentSortLabel}</Text>
+            <Text>
+              {tUsers("admin-panel-users:sortBy")} {currentSortLabel}
+            </Text>
             <Group gap={8}>
               {order === SortEnum.ASC ? (
                 <IconSortAscending size={16} />

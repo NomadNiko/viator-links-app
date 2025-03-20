@@ -1,5 +1,7 @@
 {
   "title": "Users",
+  "sortBy": "Sort By:",
+  "noUsersFound": "No Users Found.",
   "table": {
     "column1": "ID",
     "column2": "Name",

@@ -13,6 +13,7 @@ import {
 import { Table } from "@/components/mantine/data/Table"; // Import from custom component
 import UserTableHeader from "./UserTableHeader";
 import UserTableRow from "./UserTableRow";
+import { useTranslation } from "@/services/i18n/client";
 
 interface UsersTableProps {
   users: User[];
@@ -36,12 +37,18 @@ function UsersTable({
   isLoading,
 }: UsersTableProps) {
   const theme = useMantineTheme();
+  const { t: tUsers } = useTranslation("admin-panel-users");
 
   return (
     <Paper shadow="xs" p="md">
       <Box style={{ height: 500 }}>
         <ScrollArea style={{ height: "100%" }}>
-          <Table striped highlightOnHover>
+          <Table
+            striped
+            highlightOnHover
+            withTableBorder={false}
+            withColumnBorders={false}
+          >
             <thead>
               <UserTableHeader
                 orderBy={orderBy}
@@ -58,7 +65,6 @@ function UsersTable({
                   </td>
                 </tr>
               )}
-
               {users.length > 0 ? (
                 users.map((user) => (
                   <tr key={user.id}>
@@ -76,7 +82,7 @@ function UsersTable({
                         <Loader size="md" />
                       </Center>
                     ) : (
-                      <Text>No users found</Text>
+                      <Text>{tUsers("admin-panel-users:noUsersFound")}</Text>
                     )}
                   </td>
                 </tr>
