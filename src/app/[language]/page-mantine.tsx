@@ -26,7 +26,7 @@ export default function HomeMantine() {
   }, []);
 
   return (
-    <Container size="md">
+    <Container size="lg">
       <Stack gap="xl" py="xl">
         <Title order={2} data-testid="home-title">
           {t("title")}
