@@ -1,11 +1,30 @@
 "use client";
 import { useTranslation } from "@/services/i18n/client";
-import { Container, Stack, Box, Title, Text, Space } from "@mantine/core";
+import {
+  Container,
+  Stack,
+  Box,
+  Title,
+  Text,
+  Space,
+  createStyles,
+} from "@mantine/core";
 import { useEffect } from "react";
 import { Trans } from "react-i18next/TransWithoutContext";
 
+// Create custom styles to hide the "Powered by Viator" elements
+const useStyles = createStyles(() => ({
+  hidePoweredBy: {
+    // This targets the specific div class that Viator uses
+    '& div[class*="poweredByViator"]': {
+      display: "none !important",
+    },
+  },
+}));
+
 export default function HomeMantine() {
   const { t } = useTranslation("home");
+  const { classes } = useStyles();
 
   // Effect to load the Viator script
   useEffect(() => {
@@ -26,7 +45,7 @@ export default function HomeMantine() {
   }, []);
 
   return (
-    <Container size="lg">
+    <Container size="xl" className={classes.hidePoweredBy}>
       <Stack gap="xl" py="xl">
         <Title order={2} data-testid="home-title">
           {t("title")}
