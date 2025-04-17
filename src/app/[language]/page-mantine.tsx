@@ -1,51 +1,47 @@
 "use client";
 import { useTranslation } from "@/services/i18n/client";
-import {
-  Container,
-  Stack,
-  Box,
-  Title,
-  Text,
-  Space,
-  createStyles,
-} from "@mantine/core";
+import { Container, Stack, Box, Title, Text, Space } from "@mantine/core";
 import { useEffect } from "react";
 import { Trans } from "react-i18next/TransWithoutContext";
 
-// Create custom styles to hide the "Powered by Viator" elements
-const useStyles = createStyles(() => ({
-  hidePoweredBy: {
-    // This targets the specific div class that Viator uses
-    '& div[class*="poweredByViator"]': {
-      display: "none !important",
-    },
-  },
-}));
+// Define the CSS as a string
+const hidePoweredByCSS = `
+  div[class*="poweredByViator"] {
+    display: none !important;
+  }
+`;
 
 export default function HomeMantine() {
   const { t } = useTranslation("home");
-  const { classes } = useStyles();
 
-  // Effect to load the Viator script
+  // Effect to load the Viator script and inject CSS
   useEffect(() => {
-    // Create script element
+    // Create script element for Viator
     const script = document.createElement("script");
     script.src = "https://www.viator.com/orion/partner/widget.js";
     script.async = true;
 
-    // Append to document
+    // Create and inject CSS to hide "Powered by Viator"
+    const style = document.createElement("style");
+    style.textContent = hidePoweredByCSS;
+    document.head.appendChild(style);
+
+    // Append script to document
     document.body.appendChild(script);
 
-    // Cleanup function to remove script when component unmounts
+    // Cleanup function to remove script and style when component unmounts
     return () => {
       if (document.body.contains(script)) {
         document.body.removeChild(script);
+      }
+      if (document.head.contains(style)) {
+        document.head.removeChild(style);
       }
     };
   }, []);
 
   return (
-    <Container size="xl" className={classes.hidePoweredBy}>
+    <Container size="md">
       <Stack gap="xl" py="xl">
         <Title order={2} data-testid="home-title">
           {t("title")}
